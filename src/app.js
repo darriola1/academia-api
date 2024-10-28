@@ -1,9 +1,25 @@
-import express from 'express';
-import { getAllUsers } from '../controllers/userController.js';
+import express, { json } from 'express';
+import dotenv from 'dotenv';
+// import authRoutes from './routes/authRoutes.js';
+import { userRouter } from './routes/userRoutes.js';
 
-const router = express.Router();
+// Se define el puerto en el que se ejecutará la API
+const port = process.env.API_PORT ?? 4000;
 
-// Ruta para obtener todos los usuarios
-router.get('/users', getAllUsers);
+dotenv.config();
+const app = express();
+// Se deshabilita el header 'x-powered-by' por "seguridad".
+app.disable('x-powered-by');
+// Se utiliza el middleware 'json' para el parsing de las solicitudes en formato JSON.
+app.use(json());
+// app.use('/auth', authRoutes);
+app.use('/api/users', userRouter);
 
-export default router;
+// Middleware para manejar solicitudes a rutas no definidas, devuelve un código de estado 404.
+app.use((req, res) => {
+    res.status(404).send('End Point no valido');
+});
+
+// Se inicia el servidor Express y se escucha en el puerto especificado.
+app.listen(port);
+console.log(`Server on port: ${port}`);

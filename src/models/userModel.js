@@ -1,6 +1,5 @@
 import pool from '../config/db.js';
 
-
 // Clase para manejar las operaciones relacionadas con los Usuarios
 export class UserModel {
     // Obtener todos los usuarios

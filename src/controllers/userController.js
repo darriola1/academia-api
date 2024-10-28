@@ -28,9 +28,12 @@ export class UserController {
     // Método estático para obtener todos los usuarios.
     static async getAllUsers(req, res) {
         try {
+            // Se llama al metodo getAllUsers del modelo de usuarios para obtener todos los usuarios.
             const users = await UserModel.getAllUsers();
+            // Se envía la respuesta en formato JSON con todos los usuarios obtenidas.
             return res.json(users);
         } catch (error) {
+            // Se devuelve error en caso de que exista
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
