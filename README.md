@@ -72,4 +72,4 @@ Si la conexión a la base de datos es correcta, deberías recibir un JSON con la
 ### 🐞 Solución de Problemas Comunes
 
 - ⚠️ **Error de conexión a la base de datos**: Asegúrate de que el valor de `DB_HOST` en `.env` sea `db`, y verifica que las credenciales de usuario y contraseña coincidan con las definidas en `docker-compose.yml`.
-- ⚠️ **Puerto en uso**: Si el puerto `3000` o `3307` ya está en uso, ajusta los valores en `docker-compose.yml` o libera esos puertos.
+- ⚠️ **Puerto en uso**: Si el puerto `3000` o `3308` ya está en uso, ajusta los valores en `docker-compose.yml` o libera esos puertos.
