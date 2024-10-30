@@ -2,28 +2,28 @@ import { UserModel } from '../models/userModel.js';
 
 export class UserController {
     // Método estático para crear un nuevo usuario.
-    // static async createUser(req, res) {
-    //     const { nombre, apellido, email, password, idRol } = req.body;
+    static async createUser(req, res) {
+        const { nombre, apellido, email, password, idRol } = req.body;
 
-    //     try {
-    //         // Hasheamos la contraseña antes de guardar el usuario
-    //         const passwordHash = await bcrypt.hash(password, 10);
+        try {
+            // Hasheamos la contraseña antes de guardar el usuario
+            const passwordHash = await bcrypt.hash(password, 10);
 
-    //         // Insertamos el nuevo usuario en la base de datos
-    //         const insertResult = await UserModel.createUser(nombre, apellido, email, passwordHash, idRol);
-    //         const insertId = insertResult.insertId;
+            // Insertamos el nuevo usuario en la base de datos
+            const insertResult = await UserModel.createUser(nombre, apellido, email, passwordHash, idRol);
+            const insertId = insertResult.insertId;
 
-    //         // Obtenemos el usuario creado
-    //         const newUser = await UserModel.getUserById(insertId);
-    //         return res.status(201).json(newUser);
-    //     } catch (error) {
-    //         if (error.code === 'ER_DUP_ENTRY') {
-    //             return res.status(409).json({ error: 'El usuario ya existe' });
-    //         } else {
-    //             return res.status(500).json({ error: 'Error interno del servidor' });
-    //         }
-    //     }
-    // }
+            // Obtenemos el usuario creado
+            const newUser = await UserModel.getUserById(insertId);
+            return res.status(201).json(newUser);
+        } catch (error) {
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ error: 'El usuario ya existe' });
+            } else {
+                return res.status(500).json({ error: 'Error interno del servidor' });
+            }
+        }
+    }
 
     // Método estático para obtener todos los usuarios.
     static async getAllUsers(req, res) {
@@ -38,54 +38,54 @@ export class UserController {
         }
     }
 
-    // // Método estático para obtener un usuario por ID.
-    // static async getUserById(req, res) {
-    //     const { id } = req.params;
-    //     try {
-    //         const user = await UserModel.getUserById(id);
-    //         if (user) {
-    //             return res.json(user);
-    //         } else {
-    //             return res.status(404).json({ error: `El usuario con id: ${id} no se pudo encontrar` });
-    //         }
-    //     } catch (error) {
-    //         return res.status(500).json({ error: 'Error interno del servidor' });
-    //     }
-    // }
+    // Método estático para obtener un usuario por ID.
+    static async getUserById(req, res) {
+        const { id } = req.params;
+        try {
+            const user = await UserModel.getUserById(id);
+            if (user) {
+                return res.json(user);
+            } else {
+                return res.status(404).json({ error: `El usuario con id: ${id} no se pudo encontrar` });
+            }
+        } catch (error) {
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
 
-    // // Método estático para actualizar un usuario.
-    // static async updateUser(req, res) {
-    //     const { id } = req.params;
-    //     const { nombre, apellido, email, idRol } = req.body;
+    // Método estático para actualizar un usuario.
+    static async updateUser(req, res) {
+        const { id } = req.params;
+        const { nombre, apellido, email, idRol } = req.body;
 
-    //     try {
-    //         const updatedUser = await UserModel.updateUser(id, nombre, apellido, email, idRol);
+        try {
+            const updatedUser = await UserModel.updateUser(id, nombre, apellido, email, idRol);
 
-    //         if (updatedUser.affectedRows > 0) {
-    //             const user = await UserModel.getUserById(id);
-    //             return res.status(202).json(user);
-    //         } else {
-    //             return res.status(404).json({ error: `El usuario con id: ${id} no se pudo encontrar para ser actualizado` });
-    //         }
-    //     } catch (error) {
-    //         return res.status(500).json({ error: 'Error interno del servidor' });
-    //     }
-    // }
+            if (updatedUser.affectedRows > 0) {
+                const user = await UserModel.getUserById(id);
+                return res.status(202).json(user);
+            } else {
+                return res.status(404).json({ error: `El usuario con id: ${id} no se pudo encontrar para ser actualizado` });
+            }
+        } catch (error) {
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
 
-    // // Método estático para eliminar un usuario.
-    // static async deleteUser(req, res) {
-    //     const { id } = req.params;
+    // Método estático para eliminar un usuario.
+    static async deleteUser(req, res) {
+        const { id } = req.params;
 
-    //     try {
-    //         const deletedUser = await UserModel.deleteUser(id);
+        try {
+            const deletedUser = await UserModel.deleteUser(id);
 
-    //         if (deletedUser.affectedRows > 0) {
-    //             return res.status(200).json({ message: 'Usuario eliminado correctamente' });
-    //         } else {
-    //             return res.status(404).json({ error: 'El usuario no existe o ya ha sido eliminado' });
-    //         }
-    //     } catch (error) {
-    //         return res.status(500).json({ error: 'Error interno del servidor' });
-    //     }
-    // }
+            if (deletedUser.affectedRows > 0) {
+                return res.status(200).json({ message: 'Usuario eliminado correctamente' });
+            } else {
+                return res.status(404).json({ error: 'El usuario no existe o ya ha sido eliminado' });
+            }
+        } catch (error) {
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
 }

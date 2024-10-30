@@ -3,10 +3,9 @@ import dotenv from 'dotenv';
 // import authRoutes from './routes/authRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
 
-// Se define el puerto en el que se ejecutará la API
+// Se define el puerto en el que se ejecutará la API por defecto 4000 si no esta definido
 const port = process.env.API_PORT ?? 4000;
 
-dotenv.config();
 const app = express();
 // Se deshabilita el header 'x-powered-by' por "seguridad".
 app.disable('x-powered-by');

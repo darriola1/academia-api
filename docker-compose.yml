@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # Servicio de la API en Node.js
   api:
@@ -22,7 +20,7 @@ services:
       MYSQL_ROOT_PASSWORD: my-secret-pw
       MYSQL_DATABASE: academia_ingles
     ports:
-      - "3308:3306"
+      - "3308:3306" # Mapea el puerto 3306 del contenedor al 3308 host
     volumes:
       - db_data:/var/lib/mysql
 
