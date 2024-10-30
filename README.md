@@ -19,8 +19,6 @@ Crea un archivo `.env` en la raíz del proyecto con la configuración de conexi�
 
 dotenv
 
-Copiar código
-
 `DB_HOST=db
 DB_USER=root
 DB_PASSWORD=AdminDB
@@ -30,10 +28,6 @@ JWT_SECRET=supersecretkey`
 ### 🛠️ 2. Construir e Iniciar los Contenedores
 
 En la raíz del proyecto, ejecuta el siguiente comando para construir e iniciar los contenedores:
-
-bash
-
-Copiar código
 
 `docker-compose up --build`
 
@@ -46,10 +40,6 @@ Este comando:
 
 Una vez que los contenedores estén en ejecución, deberías ver el siguiente mensaje en la terminal, indicando que el servidor está activo:
 
-arduino
-
-Copiar código
-
 `Server running on port 3000`
 
 ### 🔗 4. Probar el Endpoint para Obtener Usuarios
@@ -60,10 +50,6 @@ Para asegurarte de que el sistema se está conectando correctamente a la base de
 - **URL**: `http://localhost:3000/api/users`
 
 Puedes hacer esta solicitud usando una herramienta como **Postman** o **curl** en la terminal:
-
-bash
-
-Copiar código
 
 `curl http://localhost:3000/api/users`
 
