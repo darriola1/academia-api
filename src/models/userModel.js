@@ -4,37 +4,75 @@ import pool from '../config/db.js';
 export class UserModel {
 
     static async createUser(nombre, apellido, email, passwordHash, idRol) {
-        const query = `INSERT INTO usuarios (nombre, apellido, email, passwordHash, idRol) VALUES (?, ?, ?, ?, ?)`;
-        const [result] = await pool.query(query, [nombre, apellido, email, passwordHash, idRol]);
-        return result;
+        const query = `INSERT INTO usuarios (nombre, apellido, email, password_hash, id_rol) VALUES (?, ?, ?, ?, ?)`;
+        // console.log(`Query: ${query}`)
+        try {
+            const [result] = await pool.query(query, [nombre, apellido, email, passwordHash, idRol]);
+            // console.log(`Result: ${JSON.stringify(result)}`);
+            return result;
+        } catch (error) {
+            console.error(`Error executing query: ${error.message}`);
+            throw error;
+        }
     }
 
     static async getAllUsers() {
         const query = `SELECT * FROM usuarios`;
-        const [result] = await pool.query(query);
-        return result;  // Retorna un array con todos los usuarios
+        try {
+            const [result] = await pool.query(query);
+            // console.log(`Result: ${JSON.stringify(result)}`);
+            return result;  // Retorna un array con todos los usuarios
+        } catch (error) {
+            console.error(`Error executing query: ${error.message}`);
+            throw error;
+        }
     }
 
     static async getUserById(id) {
         const query = `SELECT * FROM usuarios where id_usuario = ?`;
-        const [result] = await pool.query(query, [id]);
-        return result;
+        try {
+            const [result] = await pool.query(query, [id]);
+            // console.log(`Result: ${JSON.stringify(result)}`);
+            return result;
+        } catch (error) {
+            console.error(`Error executing query: ${error.message}`);
+            throw error;
+        }
     }
 
     static async getUserByEmail(email) {
         const query = `SELECT * FROM usuarios where email = ?`;
-        const [result] = await pool.query(query, [email]);
-        return result;
+        try {
+            const [result] = await pool.query(query, [email]);
+            // console.log(`Result: ${JSON.stringify(result)}`);
+            return result;
+        } catch (error) {
+            console.error(`Error executing query: ${error.message}`);
+            throw error;
+        }
     }
 
     static async updateUser(id, nombre, apellido, email, id_rol) {
         const query = `UPDATE usuarios SET nombre = ?, apellido = ?, email = ?, id_rol = ? WHERE id_usuario = ?`
-        const [result] = await connection.query(query, [nombre, apellido, email, id_rol, id]);
-        return result;
+        try {
+            const [result] = await connection.query(query, [nombre, apellido, email, id_rol, id]);
+            console.log(`Result: ${JSON.stringify(result)}`);
+            return result;
+        } catch (error) {
+            console.error(`Error executing query: ${error.message}`);
+            throw error;
+        }
     }
 
     static async deleteUser(id) {
-        const [result] = await connection.query('DELETE FROM usuarios WHERE id_usuario = ?', [id]);
-        return result;
+        const query = 'DELETE FROM usuarios WHERE id_usuario = ?'
+        try {
+            const [result] = await connection.query(query, [id]);
+            // console.log(`Result: ${JSON.stringify(result)}`);
+            return result;
+        } catch (error) {
+            console.error(`Error executing query: ${error.message}`);
+            throw error;
+        }
     }
 }
