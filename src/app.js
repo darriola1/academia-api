@@ -1,5 +1,4 @@
 import express, { json } from 'express';
-import dotenv from 'dotenv';
 // import authRoutes from './routes/authRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
 

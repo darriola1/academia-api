@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # 4. Instalar las dependencias
-RUN npm install
+RUN npm install --omit=dev
 
 # 5. Copiar el resto de los archivos de la app
 COPY . .

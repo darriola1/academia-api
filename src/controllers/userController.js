@@ -1,9 +1,52 @@
 import { UserModel } from '../models/userModel.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 export class UserController {
+
+    static async login(req, res) {
+        const { email, password } = req.body;
+
+        try {
+            // Verificar si el usuario existe
+            const user = await UserModel.getByEmail(email);
+            if (!user) {
+                return res.status(404).json({ error: 'Usuario no encontrado' });
+            }
+
+            // Verificar la contraseña
+            const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+            if (!isPasswordValid) {
+                return res.status(401).json({ error: 'Contraseña incorrecta' });
+            }
+
+            // Generar el token JWT con la información del usuario
+            const token = jwt.sign(
+                { id: user.id_usuario, rol: user.rol },
+                process.env.JWT_SECRET,
+                { expiresIn: '24h' }
+            );
+
+            // Retornar el token junto con la información adicional del usuario
+            return res.status(200).json({
+                token,
+                user: {
+                    id: user.id_usuario,
+                    rol: user.rol,
+                    email: user.email
+                }
+            });
+        } catch (error) {
+            console.error('Error en el login:', error);
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+
     // Método estático para crear un nuevo usuario.
     static async createUser(req, res) {
         const { nombre, apellido, email, password, idRol } = req.body;
+
+        console.log(nombre, apellido, email, password, idRol)
 
         try {
             // Hasheamos la contraseña antes de guardar el usuario

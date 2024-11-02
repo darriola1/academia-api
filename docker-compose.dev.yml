@@ -3,7 +3,7 @@ services:
   api:
     build:
       context: .
-      dockerfile: Dockerfile.prod  # Usa Dockerfile.prod para producción
+      dockerfile: Dockerfile.dev  # Usa Dockerfile.dev para desarrollo
     ports:
       - "3000:3000"  # Mapea el puerto 3000 del contenedor al host
     environment:
@@ -14,6 +14,10 @@ services:
       - JWT_SECRET=supersecretkey
     depends_on:
       - db
+    volumes:
+      - .:/app
+      - /app/node_modules  # Para evitar conflictos de `node_modules` locales
+    command: npx nodemon src/app.js  # Usa nodemon para recarga automática
 
   # Servicio de la base de datos MySQL
   db:
@@ -22,7 +26,7 @@ services:
       MYSQL_ROOT_PASSWORD: my-secret-pw
       MYSQL_DATABASE: academia_ingles
     ports:
-      - "3308:3306" # Mapea el puerto 3306 del contenedor al 3308 host
+      - "3308:3306"  # Mapea el puerto 3306 del contenedor al 3308 del host
     volumes:
       - db_data:/var/lib/mysql
 
