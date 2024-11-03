@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # 6. Exponer el puerto que usará el servidor (ajusta si usas otro puerto en el servidor)
-EXPOSE 3000
+EXPOSE 3001
 
 # 7. Comando para ejecutar el servidor
 CMD ["npx", "nodemon", "src/app.js"]
