@@ -5,16 +5,16 @@ import jwt from 'jsonwebtoken';
 export class AuthController {
 
     static async login(req, res) {
-        console.log('req.body', req.body)
+        // console.log('req.body', req.body)
         const { email, password } = req.body;
-        console.log('email: ', email)
-        console.log('password: ', password)
+        // console.log('email: ', email)
+        // console.log('password: ', password)
 
         try {
             // Verificar si el usuario existe
             const [result] = await UserModel.getUserByEmail(email);
             const user = result
-            console.log('user: ', user)
+            // console.log('user: ', user)
             if (!user) {
                 return res.status(404).json({ error: 'Usuario no encontrado' });
             }

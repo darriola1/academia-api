@@ -1,7 +1,7 @@
 import express, { json } from 'express';
 // import authRoutes from './routes/authRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
-import { authRouter } from './routes/authRoutes';
+import { authRouter } from './routes/authRoutes.js';
 
 // Se define el puerto en el que se ejecutará la API por defecto 4000 si no esta definido
 const port = process.env.API_PORT ?? 4000;

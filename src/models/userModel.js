@@ -42,10 +42,10 @@ export class UserModel {
 
     static async getUserByEmail(email) {
         const query = `SELECT * FROM usuarios where email = ?`;
-        console.log(`Query: ${query}`)
+        // console.log(`Query: ${query}`)
         try {
             const [result] = await pool.query(query, [email]);
-            console.log(`Result: ${JSON.stringify(result)}`);
+            // console.log(`Result: ${JSON.stringify(result)}`);
             return result;
         } catch (error) {
             console.error(`Error executing query: ${error.message}`);
