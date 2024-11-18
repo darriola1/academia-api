@@ -1,4 +1,5 @@
 import express, { json } from 'express';
+import logger from './logger.js';
 // import authRoutes from './routes/authRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
 import { authRouter } from './routes/authRoutes.js';
@@ -23,3 +24,4 @@ app.use((req, res) => {
 // Se inicia el servidor Express y se escucha en el puerto especificado.
 app.listen(port);
 console.log(`Server on port: ${port}`);
+logger.info(`Server on port: ${port}`);
