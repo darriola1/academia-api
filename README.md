@@ -31,6 +31,12 @@ En la raíz del proyecto, ejecuta el siguiente comando para construir e iniciar 
 
 `docker-compose up --build`
 
+Para entorno Prod usar:
+`docker-compose -f docker-compose.prod.yml up --build`
+
+Para entorno Dev usar:
+`docker-compose -f docker-compose.dev.yml up --build`
+
 Este comando:
 
 - Construirá la imagen de Docker para la API de Node.js.

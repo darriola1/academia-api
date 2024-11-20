@@ -21,7 +21,7 @@ export class UserModel {
         try {
             const [result] = await pool.query(query);
             // console.log(`Result: ${JSON.stringify(result)}`);
-            return result;  // Retorna un array con todos los usuarios
+            return result;  // Retorna un array de objetos con todos los usuarios
         } catch (error) {
             console.error(`Error executing query: ${error.message}`);
             throw error;
@@ -42,6 +42,7 @@ export class UserModel {
 
     static async getUserByEmail(email) {
         const query = `SELECT * FROM usuarios where email = ?`;
+        // console.log(`Query: ${query}`)
         try {
             const [result] = await pool.query(query, [email]);
             // console.log(`Result: ${JSON.stringify(result)}`);
