@@ -30,30 +30,31 @@ export class AuthController {
 
             // Generar el token JWT con la información del usuario
             const token = jwt.sign(
-                { id: user.id_usuario, rol: user.rol },
+                {
+                    id: user.id_usuario,
+                    rol: user.id_rol
+                },
                 process.env.JWT_SECRET,
                 { expiresIn: '24h' }
             );
 
             logger.info(`El usuario ${user.id_usuario} se ha logueado correctamente`)
-            // Retornar el token junto con la información adicional del usuario
             return res.status(200).json({
-                token,
                 user: {
                     id: user.id_usuario,
-                    rol: user.rol,
+                    rol: user.id_rol,
                     email: user.email
-                }
+                },
+                token
             });
         } catch (error) {
             console.error('Error en el login:', error);
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
+
     static async createUser(req, res) {
         const { nombre, apellido, email, password, idRol } = req.body;
-
-        // console.log(nombre, apellido, email, password, idRol)
 
         try {
             // Hasheamos la contraseña antes de guardar el usuario

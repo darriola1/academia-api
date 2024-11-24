@@ -15,3 +15,22 @@ CREATE TABLE usuarios (
     id_rol INT,
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
 );
+
+CREATE TABLE balance (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    alumno_id INT NOT NULL,
+    balance DECIMAL(10, 2) DEFAULT 0,
+    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (alumno_id) REFERENCES usuarios(id_usuario)
+);
+
+CREATE TABLE asistencia (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    alumno_id INT NOT NULL,
+    clase_dia DATE NOT NULL,
+    clase_hora TIME NOT NULL,
+    status ENUM('attended', 'missed') DEFAULT 'missed',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (alumno_id) REFERENCES usuarios(id_usuario)
+);
+
