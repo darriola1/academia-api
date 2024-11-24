@@ -34,3 +34,13 @@ CREATE TABLE asistencia (
     FOREIGN KEY (alumno_id) REFERENCES usuarios(id_usuario)
 );
 
+CREATE TABLE estado_cuenta (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    alumno_id INT NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    descripcion VARCHAR(255) NOT NULL,
+    monto DECIMAL(10, 2) NOT NULL, -- Positivo o negativo según el movimiento
+    balance_final DECIMAL(10, 2) NOT NULL, -- Balance tras este movimiento
+    FOREIGN KEY (alumno_id) REFERENCES usuarios(id_usuario)
+);
+

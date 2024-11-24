@@ -3,19 +3,14 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import logger from '../logger.js';
 
-
 export class AuthController {
-
     static async login(req, res) {
-        // console.log('req.body', req.body)
         const { email, password } = req.body;
-        // console.log('email: ', email)
-        // console.log('password: ', password)
 
         try {
             // Verificar si el usuario existe
             const [result] = await UserModel.getUserByEmail(email);
-            const user = result
+            const user = result;
             // console.log('user: ', user)
             if (!user) {
                 logger.info('Error en el login: Usuario no encontrado');
@@ -27,28 +22,33 @@ export class AuthController {
                 logger.info('Error en el login: Contraseña incorrecta');
                 return res.status(401).json({ error: 'Contraseña incorrecta' });
             }
-
+            const [userRol] = await UserModel.getRolById(user.id_rol);
+            if (!userRol) {
+                logger.error('Error obteniendo el rol del usuario');
+                return res.status(500).json({ error: 'Error obteniendo el rol del usuario' });
+            }
             // Generar el token JWT con la información del usuario
             const token = jwt.sign(
                 {
                     id: user.id_usuario,
-                    rol: user.id_rol
+                    rol: userRol.nombre_rol,
                 },
                 process.env.JWT_SECRET,
                 { expiresIn: '24h' }
             );
 
-            logger.info(`El usuario ${user.id_usuario} se ha logueado correctamente`)
+            logger.info(`El usuario ${user.id_usuario} se ha logueado correctamente`);
             return res.status(200).json({
                 user: {
                     id: user.id_usuario,
-                    rol: user.id_rol,
-                    email: user.email
+                    // rol_id: user.id_rol,
+                    rol_nombre: userRol.nombre_rol,
+                    email: user.email,
                 },
-                token
+                token,
             });
         } catch (error) {
-            console.error('Error en el login:', error);
+            logger.error('Error en el login:', error);
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
