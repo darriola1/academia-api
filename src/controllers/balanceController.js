@@ -2,11 +2,10 @@ import { BalanceModel } from '../models/balanceModel.js';
 import logger from '../logger.js';
 
 export class BalanceController {
-
     // Método estático para crear un nuevo usuario.
     static async getBalanceById(req, res) {
         const { id: alumno_id } = req.params;
-        const { id: usuario_id } = req.user
+        const { id: usuario_id } = req.user;
 
         try {
             // Hasheamos la contraseña antes de guardar el usuario
@@ -18,5 +17,4 @@ export class BalanceController {
             res.status(500).json({ error: 'Error al obtener balance' });
         }
     }
-
 }

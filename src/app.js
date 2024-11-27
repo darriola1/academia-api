@@ -16,7 +16,7 @@ app.use(json());
 // app.use('/auth', authRoutes);
 app.use('/api', authRouter);
 app.use('/api/users', userRouter);
-app.use('/api/balance', balanceRouter)
+app.use('/api/balance', balanceRouter);
 
 // Middleware para manejar solicitudes a rutas no definidas, devuelve un código de estado 404.
 app.use((req, res) => {

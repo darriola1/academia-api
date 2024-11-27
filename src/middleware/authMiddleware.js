@@ -4,20 +4,20 @@ import logger from '../logger.js';
 const verificarToken = (req, res, next) => {
     //obtenemos el token desde el header del request
     const token = req.headers.authorization?.split(' ')[1];
-    console.log(`token: ${token}`)
+    console.log(`token: ${token}`);
     if (!token) {
         return res.status(401).json({ error: 'acceso no autorizado' });
     }
 
     try {
         //decodificamos el token y almacenamos los datos en la request
-        const user = jwt.verify(token, process.env.JWT_SECRET)
+        const user = jwt.verify(token, process.env.JWT_SECRET);
         req.user = user;
-        console.log(`user: ${JSON.stringify(user)}`)
+        console.log(`user: ${JSON.stringify(user)}`);
         // se continua con la solicitud
-        next()
+        next();
     } catch (error) {
-        logger.error('Error al verificar el token:', error.message)
+        logger.error('Error al verificar el token:', error.message);
         return res.status(403).json({ error: 'Token inválido o expirado' });
     }
 };
@@ -33,4 +33,4 @@ const verificarRole = (allowedRoles) => {
     };
 };
 
-export { verificarToken, verificarRole }
+export { verificarToken, verificarRole };
