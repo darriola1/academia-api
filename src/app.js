@@ -3,7 +3,7 @@ import logger from './logger.js';
 // import authRoutes from './routes/authRoutes.js';
 import { userRouter } from './routes/userRoutes.js';
 import { authRouter } from './routes/authRoutes.js';
-import { balanceRouter } from './routes/balanceRoutes.js';
+import { paymentsRouter } from './routes/paymentsRoutes.js';
 
 // Se define el puerto en el que se ejecutará la API por defecto 4000 si no esta definido
 const port = process.env.API_PORT ?? 4000;
@@ -16,7 +16,7 @@ app.use(json());
 // app.use('/auth', authRoutes);
 app.use('/api', authRouter);
 app.use('/api/users', userRouter);
-app.use('/api/balance', balanceRouter);
+app.use('/api/balance', paymentsRouter);
 
 // Middleware para manejar solicitudes a rutas no definidas, devuelve un código de estado 404.
 app.use((req, res) => {

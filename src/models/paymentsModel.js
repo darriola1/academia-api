@@ -1,7 +1,7 @@
 import pool from '../config/db.js';
 
 // Clase para manejar las operaciones relacionadas con los Usuarios
-export class BalanceModel {
+export class PaymentsModel {
     //obtener el estado de cuenta actual de un alumno
     static async getBalanceById(alumno_id) {
         const query = `SELECT * FROM balance where alumno_id = ?`;
