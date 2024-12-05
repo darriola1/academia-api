@@ -15,9 +15,3 @@ userRouter.delete('/:id', UserController.deleteUser);
 
 // Ruta para actualizar un usuario por ID.
 userRouter.put('/:id', UserController.updateUser);
-
-// // Ruta para ingresar con un usuario
-// userRouter.post('/login', UserController.login);
-
-// // Ruta para crear un nuevo usuario.
-// userRouter.post('/register', UserController.createUser);
