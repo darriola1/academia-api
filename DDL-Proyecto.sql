@@ -44,3 +44,21 @@ CREATE TABLE estado_cuenta (
     FOREIGN KEY (alumno_id) REFERENCES usuarios(id_usuario)
 );
 
+CREATE TABLE clase (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    profesora VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE alumnoClase (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    idClase INT NOT NULL,
+    idAlumno INT NOT NULL,
+    nivelCurso VARCHAR(50) NOT NULL,
+    asistio BOOLEAN NOT NULL DEFAULT FALSE,
+    FOREIGN KEY (idClase) REFERENCES clase(id) ON DELETE CASCADE,
+    FOREIGN KEY (idAlumno) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
+);
+

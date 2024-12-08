@@ -16,4 +16,23 @@ VALUES (3,'Denis','Arriola','darriola.dev@gmail.com','$2b$10$46yv5D0DJ5JKRzgWtd5
 
 -- Insetar datos de balance para un usuario
 INSERT INTO balance (alumno_id, balance, updated)
-VALUES (3,10,CURRENT_TIMESTAMP)
+VALUES (3,10,CURRENT_TIMESTAMP);
+
+INSERT INTO clase (fecha, hora_inicio, hora_fin, profesora)
+VALUES
+    ('2024-12-01', '09:00:00', '10:30:00', 'María Pérez'),
+    ('2024-12-02', '11:00:00', '12:30:00', 'Ana Rodríguez'),
+    ('2024-12-03', '14:00:00', '15:30:00', 'Laura Fernández'),
+    ('2024-12-04', '08:30:00', '10:00:00', 'Sofía López'),
+    ('2024-12-05', '10:00:00', '11:30:00', 'Claudia Martínez'),
+    ('2024-12-06', '13:00:00', '14:30:00', 'Carla Sánchez');
+    
+INSERT INTO alumnoClase (idClase, idAlumno, nivelCurso, asistio)
+VALUES
+    ( 1, 2,'Básico', TRUE),
+    ( 2, 3,'Intermedio', FALSE),
+    ( 3, 3,'Avanzado', TRUE),
+    ( 1, 3,'Básico', FALSE),
+    ( 1, 2,'Intermedio', TRUE),
+    ( 2, 2,'Avanzado', FALSE);
+    
