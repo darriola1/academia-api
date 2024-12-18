@@ -16,12 +16,27 @@ CREATE TABLE usuarios (
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
 );
 
-CREATE TABLE balance (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    alumno_id INT NOT NULL,
-    balance DECIMAL(10, 2) DEFAULT 0,
-    updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (alumno_id) REFERENCES usuarios(id_usuario)
+CREATE TABLE alumnos (
+    id_alumno INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario INT NOT NULL,
+    fecha_nacimiento DATE,
+    nivel_ingles VARCHAR(50),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+
+CREATE TABLE padres (
+    id_padre INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario INT NOT NULL,
+    telefono VARCHAR(15),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+
+CREATE TABLE relacion_alumno_padre (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_alumno INT NOT NULL,
+    id_padre INT NOT NULL,
+    FOREIGN KEY (id_alumno) REFERENCES alumnos(id_alumno),
+    FOREIGN KEY (id_padre) REFERENCES padres(id_padre)
 );
 
 CREATE TABLE asistencia (
@@ -41,6 +56,7 @@ CREATE TABLE estado_cuenta (
     descripcion VARCHAR(255) NOT NULL,
     monto DECIMAL(10, 2) NOT NULL, -- Positivo o negativo según el movimiento
     balance_final DECIMAL(10, 2) NOT NULL, -- Balance tras este movimiento
+
     FOREIGN KEY (alumno_id) REFERENCES usuarios(id_usuario)
 );
 
@@ -61,4 +77,3 @@ CREATE TABLE alumnoClase (
     FOREIGN KEY (idClase) REFERENCES clase(id) ON DELETE CASCADE,
     FOREIGN KEY (idAlumno) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
-

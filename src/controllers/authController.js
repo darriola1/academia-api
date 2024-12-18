@@ -31,6 +31,7 @@ export class AuthController {
             const token = jwt.sign(
                 {
                     id: user.id_usuario,
+                    user_name: `${user.nombre} ${user.apellido}`,
                     rol: userRol.nombre_rol,
                 },
                 process.env.JWT_SECRET,
@@ -41,6 +42,7 @@ export class AuthController {
             return res.status(200).json({
                 user: {
                     id: user.id_usuario,
+                    user_name: `${user.nombre} ${user.apellido}`,
                     // rol_id: user.id_rol,
                     rol_nombre: userRol.nombre_rol,
                     email: user.email,
