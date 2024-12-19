@@ -8,4 +8,3 @@ export const paymentsRouter = Router();
 paymentsRouter.get('/:id', verificarToken, verificarRole(['admin']), PaymentsController.getBalanceById);
 // Ruta para registrar un pago de un alumno
 paymentsRouter.post('/:id', verificarToken, verificarRole(['admin']), PaymentsController.setBalanceById);
-
