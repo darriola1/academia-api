@@ -46,8 +46,14 @@ VALUES
 -- Insertar alumnos relacionados con los usuarios
 INSERT INTO alumnos (id_usuario, fecha_nacimiento, nivel_ingles)
 VALUES 
-(4, '2000-05-15', 'Intermedio'),
-(5, '1998-09-23', 'Avanzado');
+(6, '2000-05-15', 'Intermedio'),
+(7, '1991-06-22', 'Avanzado');
+
+-- Insertar usuarios con rol de alumno
+INSERT INTO usuarios (nombre, apellido, email, password_hash, id_rol)
+VALUES 
+('Juan', 'Péasdasdrez', 'juan.pesdasdrez@example.com', '$2b$10$46yv5D0DJ5JKRzgWtd5gouGmfSuYzHaz7tVSFz.SMTgrKUEuKMI9W', 3),
+('Adasdna', 'García', 'ana.garasdascia@example.com', '$2b$10$46yv5D0DJ5JKRzgWtd5gouGmfSuYzHaz7tVSFz.SMTgrKUEuKMI9W', 3);
 
 -- Movimientos para Juan Pérez (alumno_id = 1)
 INSERT INTO estado_cuenta (alumno_id, descripcion, monto, balance_final)

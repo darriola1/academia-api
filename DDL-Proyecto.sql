@@ -60,6 +60,8 @@ CREATE TABLE estado_cuenta (
     FOREIGN KEY (alumno_id) REFERENCES usuarios(id_usuario)
 );
 
+ALTER TABLE estado_cuenta ADD COLUMN tipo_movimiento ENUM('factura', 'pago') NOT NULL;
+
 CREATE TABLE clase (
     id INT AUTO_INCREMENT PRIMARY KEY,
     fecha DATE NOT NULL,

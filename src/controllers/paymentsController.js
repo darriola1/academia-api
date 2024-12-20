@@ -20,39 +20,46 @@ export class PaymentsController {
 
     static async setBalanceById(req, res) {
         const { id: alumno_id } = req.params;
-        // console.log('alumno_id', alumno_id)
         const { id: usuario_id } = req.user;
-        const { monto, descripcion } = req.body;
-        // console.log('monto: ', monto)
-        // console.log('descripcion: ', descripcion)
+        const { monto, descripcion, tipo_movimiento } = req.body; // Ahora aceptamos `tipo_movimiento`
+
         try {
             // Validar que el monto sea un número
             if (isNaN(monto)) {
                 throw new Error(`El valor de 'monto' debe ser un número válido. Recibido: ${monto}`);
             }
+
+            // Validar el tipo de movimiento
+            const tiposValidos = ['factura', 'pago']; // Se pueden agregar mas tipos de ser necesario
+            if (!tipo_movimiento || !tiposValidos.includes(tipo_movimiento)) {
+                throw new Error(`El valor de 'tipo_movimiento' debe ser uno de: ${tiposValidos.join(', ')}`);
+            }
+
             // Obtener el último balance del alumno
             const [lastRecord] = await PaymentsModel.getBalanceById(alumno_id);
 
             // Si no hay registros previos, el balance inicial es 0
             const currentBalance = lastRecord ? lastRecord.balance_final : 0;
-            // console.log('currentBalance: ', currentBalance)
+
             // Calcular el nuevo balance
-            const newBalance = parseFloat(currentBalance) + parseFloat(monto);
+            const newBalance = tipo_movimiento === 'factura'
+                ? parseFloat(currentBalance) + parseFloat(monto) // Suma para facturas
+                : parseFloat(currentBalance) - parseFloat(monto); // Resta para pagos
 
             // Registrar el nuevo movimiento en estado_cuenta
             const newRecord = await PaymentsModel.updateBalance({
                 alumno_id,
-                //Se setea una descripcion default
-                descripcion: descripcion || (monto > 0 ? 'Factura generada' : 'Pago realizado'),
+                descripcion: descripcion || (tipo_movimiento === 'factura' ? 'Factura generada' : 'Pago realizado'),
+                tipo_movimiento,
                 monto: monto,
                 balance_final: newBalance,
             });
 
-            logger.info(`El usuario ${usuario_id} ha actualizado el estado de cuenta del alumno ${alumno_id}`);
+            logger.info(`El usuario ${usuario_id} ha registrado un ${tipo_movimiento} para el alumno ${alumno_id}`);
             return res.status(200).json(newRecord);
         } catch (error) {
-            logger.error(`Error actualizando estado de cuenta del alumno ${alumno_id} por usuario ${usuario_id}: ${error.message}`);
-            res.status(500).json({ error: 'Error al actualizar el estado de cuenta' });
+            logger.error(`Error registrando movimiento para el alumno ${alumno_id} por usuario ${usuario_id}: ${error.message}`);
+            res.status(500).json({ error: 'Error al registrar el movimiento' });
         }
     }
 }
