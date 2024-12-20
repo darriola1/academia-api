@@ -5,14 +5,15 @@ export class PaymentsModel {
     //obtener el estado de cuenta actual de un alumno
     static async getBalanceById(alumno_id) {
         const query = `SELECT alumno_id,balance_final FROM estado_cuenta WHERE alumno_id = ? ORDER BY id DESC LIMIT 1`;
-        console.log(`SELECT balance_final FROM estado_cuenta WHERE alumno_id = ${alumno_id} ORDER BY fecha DESC LIMIT 1 `);
+        // console.log(`SELECT balance_final FROM estado_cuenta WHERE alumno_id = ${alumno_id} ORDER BY fecha DESC LIMIT 1 `);
 
         try {
             const [result] = await pool.query(query, [alumno_id]);
-            console.log(`Result: ${JSON.stringify(result)}`);
+            // console.log(`Result: ${JSON.stringify(result)}`);
             return result;
         } catch (error) {
-            console.error(`Error executing query: ${error.message}`);
+            // console.error(`Error executing query: ${error.message}`);
+            logger.error(`${error.message}`);
             throw error;
         }
     }
@@ -30,7 +31,8 @@ export class PaymentsModel {
                 fecha: new Date().toISOString(), // Fecha actual
             };
         } catch (error) {
-            console.error(`Error executing query: ${error.message}`);
+            // console.error(`Error executing query: ${error.message}`);
+            logger.error(`${error.message}`);
             throw error;
         }
     }

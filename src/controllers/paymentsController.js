@@ -20,6 +20,7 @@ export class PaymentsController {
 
     static async setBalanceById(req, res) {
         const { id: alumno_id } = req.params;
+        // console.log('alumno_id', alumno_id)
         const { id: usuario_id } = req.user;
         const { monto, descripcion } = req.body;
         // console.log('monto: ', monto)

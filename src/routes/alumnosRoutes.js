@@ -8,4 +8,5 @@ export const alumnosRouter = Router();
 alumnosRouter.get('/', verificarToken, verificarRole(['admin']), AlumnosController.getAlumnnos);
 // Ruta para consultar todos los alumnos de un tutor - Solo Admins y tutores
 // alumnosRouter.get('/:id', verificarToken, verificarRole(['admin', 'padre']), AlumnosController.setBalanceById);
-
+// Ruta para consultar detalle de un alumno - Solo Admins y tutores
+alumnosRouter.get('/:id', verificarToken, verificarRole(['admin']), AlumnosController.getAlumnnosById);
