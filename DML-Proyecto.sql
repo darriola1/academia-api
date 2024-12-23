@@ -15,9 +15,7 @@ INSERT INTO usuarios (id_usuario,nombre,apellido,email,password_hash,id_rol)
 VALUES (3,'Denis','Arriola','darriola.dev@gmail.com','$2b$10$46yv5D0DJ5JKRzgWtd5gouGmfSuYzHaz7tVSFz.SMTgrKUEuKMI9W',1);
 
 
--- Insetar datos de balance para un usuario
-INSERT INTO balance (alumno_id, balance, updated)
-VALUES (3,10,CURRENT_TIMESTAMP);
+
 
 INSERT INTO clase (fecha, hora_inicio, hora_fin, profesora)
 VALUES
@@ -46,8 +44,8 @@ VALUES
 -- Insertar alumnos relacionados con los usuarios
 INSERT INTO alumnos (id_usuario, fecha_nacimiento, nivel_ingles)
 VALUES 
-(6, '2000-05-15', 'Intermedio'),
-(7, '1991-06-22', 'Avanzado');
+(4, '2000-05-15', 'Intermedio'),
+(5, '1991-06-22', 'Avanzado');
 
 -- Insertar usuarios con rol de alumno
 INSERT INTO usuarios (nombre, apellido, email, password_hash, id_rol)

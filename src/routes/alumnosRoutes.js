@@ -10,3 +10,4 @@ alumnosRouter.get('/', verificarToken, verificarRole(['admin']), AlumnosControll
 // alumnosRouter.get('/:id', verificarToken, verificarRole(['admin', 'padre']), AlumnosController.setBalanceById);
 // Ruta para consultar detalle de un alumno - Solo Admins y tutores
 alumnosRouter.get('/:id', verificarToken, verificarRole(['admin']), AlumnosController.getAlumnnosById);
+alumnosRouter.get('/:id/transacciones', verificarToken, verificarRole(['admin']), AlumnosController.getTransaccionesByAlumno);
