@@ -4,7 +4,7 @@ import logger from '../logger.js';
 const verificarToken = (req, res, next) => {
     //obtenemos el token desde el header del request
     const token = req.headers.authorization?.split(' ')[1];
-    console.log(`token: ${token}`);
+    // console.log(`token: ${token}`);
     if (!token) {
         return res.status(401).json({ error: 'acceso no autorizado' });
     }
@@ -13,7 +13,7 @@ const verificarToken = (req, res, next) => {
         //decodificamos el token y almacenamos los datos en la request
         const user = jwt.verify(token, process.env.JWT_SECRET);
         req.user = user;
-        console.log(`user: ${JSON.stringify(user)}`);
+        // console.log(`user: ${JSON.stringify(user)}`);
         // se continua con la solicitud
         next();
     } catch (error) {

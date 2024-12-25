@@ -9,7 +9,7 @@ export class UserController {
     static async createUser(req, res) {
         const { nombre, apellido, email, password, idRol } = req.body;
 
-        console.log(nombre, apellido, email, password, idRol)
+        // console.log(nombre, apellido, email, password, idRol)
 
         try {
             // Hasheamos la contraseña antes de guardar el usuario

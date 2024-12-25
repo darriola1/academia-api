@@ -39,7 +39,7 @@ export class AlumnosModel {
                 JOIN academia_ingles.usuarios as u on u.id_usuario = a.id_usuario
                 WHERE id_alumno = ?;
         `;
-        console.log('query: ', query)
+        // console.log('query: ', query)
         try {
             const [result] = await pool.query(query, [id]);
             // console.log(`Result: ${JSON.stringify(result)}`);
@@ -56,10 +56,28 @@ export class AlumnosModel {
                 WHERE alumno_id = ?
                 order by id desc limit ?
                     `;
-        console.log('query: ', query)
+        // console.log('query: ', query)
         try {
             const [result] = await pool.query(query, [id, limit]);
             // console.log(`Result: ${JSON.stringify(result)}`);
+            return result; // Retorna un array de objetos con todos los usuarios
+        } catch (error) {
+            logger.error(`Error executing query: ${error.message}`);
+            throw error;
+        }
+    }
+
+    static async getTransaccionesByDate(id, fechaInicio, fechaFin) {
+        const query = `
+                    SELECT id,fecha, descripcion, monto, tipo_movimiento FROM academia_ingles.estado_cuenta
+                    WHERE alumno_id = 4
+                    and fecha > ? and fecha < ?
+                    order by id desc
+                    `;
+        console.log('query: ', query)
+        try {
+            const [result] = await pool.query(query, [id, fechaInicio, fechaFin]);
+            console.log(`Result: ${JSON.stringify(result)}`);
             return result; // Retorna un array de objetos con todos los usuarios
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);

@@ -79,11 +79,28 @@ export class AlumnosController {
         let { limit } = req.query;
 
         // Asegúrate de que el límite sea un número entero
-        limit = parseInt(limit, 10) || 10; // Si no hay límite, usa un valor predeterminado, como 10
+        limit = parseInt(limit, 10) || 5; // Si no hay límite, usa un valor predeterminado 5
 
         try {
             const transacciones = await AlumnosModel.getTransaccionesByID(alumno_id, limit);
-            console.log('transacciones: ', transacciones);
+            // console.log('transacciones: ', transacciones);
+            return res.status(200).json(transacciones);
+        } catch (error) {
+            logger.error(`Error consultando transacciones del alumno ${alumno_id} por usuario ${usuario_id}:${user_name} : ${error.message}`);
+            return res.status(500).json({ error: 'Error al obtener transacciones del alumno' });
+        }
+    }
+
+    static async getTransaccionesByDate(req, res) {
+        const { id: alumno_id } = req.params;
+        const { inicio: fechaInicio } = req.params;
+        const { fin: fechaFin } = req.params;
+        const { id: usuario_id } = req.user;
+        const { user_name } = req.user;
+
+        try {
+            const transacciones = await AlumnosModel.getTransaccionesByDate(alumno_id, fechaInicio, fechaFin);
+            // console.log('transacciones: ', transacciones);
             return res.status(200).json(transacciones);
         } catch (error) {
             logger.error(`Error consultando transacciones del alumno ${alumno_id} por usuario ${usuario_id}:${user_name} : ${error.message}`);
