@@ -67,3 +67,12 @@ VALUES
 (2, 'Clase asistida', 15.00, 30.00),
 (2, 'Pago realizado', -20.00, 10.00);
 
+-- Movimientos para alumnos 2 - 3 para testing
+INSERT INTO academia_ingles.estado_cuenta (alumno_id, fecha, descripcion, monto, balance_final, tipo_movimiento) 
+VALUES (3, '2024-01-01 00:00:00', 'Clase asistida', 20, 20, 'factura');
+INSERT INTO academia_ingles.estado_cuenta (alumno_id, fecha, descripcion, monto, balance_final, tipo_movimiento) 
+VALUES (3, '2024-01-01 00:00:00', 'Pago realizado', -10, 10, 'pago');
+INSERT INTO academia_ingles.estado_cuenta (alumno_id, fecha, descripcion, monto, balance_final, tipo_movimiento) 
+VALUES (3, '2024-02-01 00:00:00', 'Clase asistida', 20, 30, 'factura');
+INSERT INTO academia_ingles.estado_cuenta (alumno_id, fecha, descripcion, monto, balance_final, tipo_movimiento) 
+VALUES (3, '2024-02-01 00:00:00', 'Pago realizado', -10, 20, 'pago');

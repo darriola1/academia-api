@@ -43,7 +43,7 @@ export class AlumnosModel {
         try {
             const [result] = await pool.query(query, [id]);
             // console.log(`Result: ${JSON.stringify(result)}`);
-            return result; // Retorna un array de objetos con todos los usuarios
+            return result; // Retorna un array de objetos
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
             throw error;
@@ -54,13 +54,13 @@ export class AlumnosModel {
         const query = `
                 SELECT id,fecha, descripcion, monto, tipo_movimiento FROM academia_ingles.estado_cuenta
                 WHERE alumno_id = ?
-                order by id desc limit ?
+                ORDER BY fecha DESC limit ?
                     `;
         // console.log('query: ', query)
         try {
             const [result] = await pool.query(query, [id, limit]);
             // console.log(`Result: ${JSON.stringify(result)}`);
-            return result; // Retorna un array de objetos con todos los usuarios
+            return result; // Retorna un array de objetos con todas las transacciones segun el limite
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
             throw error;
@@ -70,15 +70,15 @@ export class AlumnosModel {
     static async getTransaccionesByDate(id, fechaInicio, fechaFin) {
         const query = `
                     SELECT id,fecha, descripcion, monto, tipo_movimiento FROM academia_ingles.estado_cuenta
-                    WHERE alumno_id = 4
-                    and fecha > ? and fecha < ?
-                    order by id desc
+                    WHERE alumno_id = ?
+                    AND fecha >= ? AND fecha <= ?
+                    ORDER BY id DESC
                     `;
         console.log('query: ', query)
         try {
             const [result] = await pool.query(query, [id, fechaInicio, fechaFin]);
             console.log(`Result: ${JSON.stringify(result)}`);
-            return result; // Retorna un array de objetos con todos los usuarios
+            return result; // Retorna un array de objetos con todas las transacciones entre fechas
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
             throw error;

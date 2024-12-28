@@ -91,21 +91,33 @@ export class AlumnosController {
         }
     }
 
-    static async getTransaccionesByDate(req, res) {
+    static async getTransaccionesByMonth(req, res) {
         const { id: alumno_id } = req.params;
-        const { inicio: fechaInicio } = req.params;
-        const { fin: fechaFin } = req.params;
-        const { id: usuario_id } = req.user;
-        const { user_name } = req.user;
+        const { mes: month, anio: year } = req.query; // Leer mes y año del query string
+        const { id: usuario_id, user_name } = req.user;
+
+        console.log(`alumno_id ${alumno_id}`)
+        console.log(`month ${month} year ${year}`)
+        console.log(`alumno_id ${alumno_id}`)
+
+        if (!month || !year) {
+            return res.status(400).json({ error: 'Debes proporcionar el mes y el año.' });
+        }
+
+        // Construir fechas de inicio y fin del mes
+        const fechaInicio = new Date(year, month - 1, 1).toISOString().split('T')[0];
+        const fechaFin = new Date(year, month, 0).toISOString().split('T')[0];
 
         try {
             const transacciones = await AlumnosModel.getTransaccionesByDate(alumno_id, fechaInicio, fechaFin);
-            // console.log('transacciones: ', transacciones);
             return res.status(200).json(transacciones);
         } catch (error) {
-            logger.error(`Error consultando transacciones del alumno ${alumno_id} por usuario ${usuario_id}:${user_name} : ${error.message}`);
-            return res.status(500).json({ error: 'Error al obtener transacciones del alumno' });
+            logger.error(
+                `Error consultando transacciones del mes ${month}/${year} para el alumno ${alumno_id} por usuario ${usuario_id}:${user_name}: ${error.message}`
+            );
+            return res.status(500).json({ error: 'Error al obtener transacciones del alumno por mes' });
         }
     }
+
 
 }

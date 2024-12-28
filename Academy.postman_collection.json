@@ -54,14 +54,11 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "http://localhost:3000/api/users/",
-									"protocol": "http",
+									"raw": "{{URL}}/users/",
 									"host": [
-										"localhost"
+										"{{URL}}"
 									],
-									"port": "3000",
 									"path": [
-										"api",
 										"users",
 										""
 									]
@@ -131,7 +128,8 @@
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.environment.set(\"variable_key\", \"variable_value\");"
+											"// Save the token from the response\r",
+											"pm.environment.set(\"token\", pm.response.json().token);"
 										],
 										"type": "text/javascript",
 										"packages": {}
@@ -151,14 +149,11 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:3000/api/login",
-									"protocol": "http",
+									"raw": "{{URL}}/login",
 									"host": [
-										"localhost"
+										"{{URL}}"
 									],
-									"port": "3000",
 									"path": [
-										"api",
 										"login"
 									]
 								}
@@ -181,7 +176,7 @@
 									"bearer": [
 										{
 											"key": "token",
-											"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6Mywicm9sIjoiYWRtaW4iLCJpYXQiOjE3MzI0Njk3NTEsImV4cCI6MTczMjU1NjE1MX0.rEJ4R1Q6_I4D7CGZP5tTwftmy0zCECFHTY7Jb01exbU",
+											"value": "{{token}}",
 											"type": "string"
 										}
 									]
@@ -198,16 +193,153 @@
 									}
 								},
 								"url": {
-									"raw": "http://localhost:3000/api/balance/3",
-									"protocol": "http",
+									"raw": "{{URL}}/payments/1",
 									"host": [
-										"localhost"
+										"{{URL}}"
 									],
-									"port": "3000",
 									"path": [
-										"api",
-										"balance",
+										"payments",
+										"1"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Balance by id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"monto\": 1000,\r\n    \"descripcion\": \"Pago mensualidad\",\r\n    \"tipo_movimiento\": \"pago\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{URL}}/payments/1",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"payments",
+										"1"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Alumnos",
+					"item": [
+						{
+							"name": "Get All Alumnos",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/alumnos",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"alumnos"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Alumnos by Id",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/alumnos/3",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"alumnos",
 										"3"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "New Request",
+							"request": {
+								"method": "GET",
+								"header": []
+							},
+							"response": []
+						},
+						{
+							"name": "Get transacciones limited",
+							"request": {
+								"auth": {
+									"type": "bearer",
+									"bearer": [
+										{
+											"key": "token",
+											"value": "{{token}}",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{URL}}/alumnos/3/transacciones?limit=5",
+									"host": [
+										"{{URL}}"
+									],
+									"path": [
+										"alumnos",
+										"3",
+										"transacciones"
+									],
+									"query": [
+										{
+											"key": "limit",
+											"value": "5"
+										}
 									]
 								}
 							},
