@@ -35,6 +35,6 @@ app.use((req, res) => {
 // app.listen(port);
 
 // Exportar la aplicación para deploy en Vercel
-module.exports = app;
+export default app;
 // console.log(`Server on port: ${port}`);
 logger.info(`Server on port: ${port}`);
