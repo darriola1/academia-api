@@ -61,6 +61,9 @@ CREATE TABLE estado_cuenta (
 );
 
 ALTER TABLE estado_cuenta ADD COLUMN tipo_movimiento ENUM('factura', 'pago') NOT NULL;
+ALTER TABLE academia_ingles.estado_cuenta
+MODIFY COLUMN tipo_movimiento ENUM('factura', 'ingreso') NOT NULL;
+
 
 CREATE TABLE clase (
     id INT AUTO_INCREMENT PRIMARY KEY,
