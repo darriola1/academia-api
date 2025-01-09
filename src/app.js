@@ -32,9 +32,9 @@ app.use((req, res) => {
 });
 
 // Se inicia el servidor Express y se escucha en el puerto especificado.
-// app.listen(port);
+app.listen(port);
 
-// Exportar la aplicación para deploy en Vercel
-export default app;
-// console.log(`Server on port: ${port}`);
+// // Exportar la aplicación para deploy en Vercel
+// export default app;
+// // console.log(`Server on port: ${port}`);
 logger.info(`Server on port: ${port}`);

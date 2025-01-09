@@ -2,3 +2,7 @@ node_modules
 # Ignorar el archivo .env
 .env
 *.log
+docker-compose.yml
+Dockerfile.dev
+Dockerfile.prod
+docker-compose.dev.yml
