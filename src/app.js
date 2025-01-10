@@ -9,7 +9,7 @@ import { paymentsRouter } from './routes/paymentsRoutes.js';
 import { alumnosRouter } from './routes/alumnosRoutes.js';
 
 // Se define el puerto en el que se ejecutará la API por defecto 4000 si no esta definido
-const port = process.env.API_PORT ?? 4000;
+const PORT = process.env.PORT || 4000;
 
 const app = express();
 // Se deshabilita el header 'x-powered-by' por "seguridad".
@@ -25,6 +25,9 @@ app.use('/api/users', userRouter);
 app.use('/api/asistencia', asistenciaRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/alumnos', alumnosRouter);
+app.get('/health', (req, res) => {
+    res.status(200).send('API is healthy');
+});
 
 // Middleware para manejar solicitudes a rutas no definidas, devuelve un código de estado 404.
 app.use((req, res) => {
@@ -32,9 +35,9 @@ app.use((req, res) => {
 });
 
 // Se inicia el servidor Express y se escucha en el puerto especificado.
-app.listen(port);
+app.listen(PORT);
 
 // // Exportar la aplicación para deploy en Vercel
 // export default app;
 // // console.log(`Server on port: ${port}`);
-logger.info(`Server on port: ${port}`);
+logger.info(`Server on port: ${PORT}`);
