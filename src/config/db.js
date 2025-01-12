@@ -15,7 +15,8 @@ const pool = mysql.createPool({
     connectionLimit: 10, // cantidad máxima de conexiones que puede tener el pool de conexiones al mismo tiempo | validar cantidad
     queueLimit: 0, // define el número máximo de conexiones que pueden esperar en cola cuando todas | 0 sin limite
     ssl: {
-        ca: fs.readFileSync("./certs/BaltimoreCyberTrustRoot.crt.pem")
+        ca: fs.readFileSync("./certs/BaltimoreCyberTrustRoot.crt.pem"),
+        rejectUnauthorized: false, // Permitir certificados autofirmados
     }
 });
 

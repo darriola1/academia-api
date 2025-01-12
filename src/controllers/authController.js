@@ -7,6 +7,11 @@ export class AuthController {
     static async login(req, res) {
         const { email, password } = req.body;
 
+        if (!email || !password) {
+            logger.info('Error en el login: Email y contraseña son obligatorios');
+            return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
+        }
+
         try {
             // Verificar si el usuario existe
             const [result] = await UserModel.getUserByEmail(email);
@@ -14,7 +19,7 @@ export class AuthController {
             // console.log('user: ', user)
             if (!user) {
                 logger.info('Error en el login: Usuario no encontrado');
-                return res.status(404).json({ error: 'Usuario no encontrado' });
+                return res.status(401).json({ error: 'Credenciales inválidas' });
             }
             // Verificar la contraseña
             const isPasswordValid = await bcrypt.compare(password, user.password_hash);
@@ -58,6 +63,16 @@ export class AuthController {
     static async createUser(req, res) {
         const { nombre, apellido, email, password, idRol } = req.body;
 
+        if (!nombre || !apellido || !email || !password || !idRol) {
+            logger.info('Error en el registro: Todos los campos son obligatorios');
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        if (password.length < 6) {
+            logger.info('Error en el registro: La contraseña es demasiado débil');
+            return res.status(400).json({ error: 'La contraseña es demasiado débil' });
+        }
+
         try {
             // Hasheamos la contraseña antes de guardar el usuario
             const passwordHash = await bcrypt.hash(password, 10);
@@ -69,7 +84,7 @@ export class AuthController {
 
             // Obtenemos el usuario creado
             const newUser = await UserModel.getUserById(insertId);
-            return res.status(201).json(newUser);
+            return res.status(201).json(newUser[0]);
         } catch (error) {
             if (error.code === 'ER_DUP_ENTRY') {
                 logger.error(`El usuario ya existe`);
