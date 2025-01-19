@@ -11,11 +11,8 @@ INSERT INTO usuarios (nombre, apellido, email, password_hash, id_rol)
 VALUES ('Prueba', 'Denis', 'denis@admin.com', '$2b$10$46yv5D0DJ5JKRzgWtd5gouGmfSuYzHaz7tVSFz.SMTgrKUEuKMI9W', 1);
 
 INSERT INTO usuarios (id_usuario,nombre,apellido,email,password_hash,id_rol) 
-														##password123
+													 ##password123
 VALUES (3,'Denis','Arriola','darriola.dev@gmail.com','$2b$10$46yv5D0DJ5JKRzgWtd5gouGmfSuYzHaz7tVSFz.SMTgrKUEuKMI9W',1);
-
-
-
 
 INSERT INTO clase (fecha, hora_inicio, hora_fin, profesora)
 VALUES

@@ -96,10 +96,6 @@ export class AlumnosController {
         const { mes: month, anio: year } = req.query; // Leer mes y año del query string
         const { id: usuario_id, user_name } = req.user;
 
-        console.log(`alumno_id ${alumno_id}`)
-        console.log(`month ${month} year ${year}`)
-        console.log(`alumno_id ${alumno_id}`)
-
         if (!month || !year) {
             return res.status(400).json({ error: 'Debes proporcionar el mes y el año.' });
         }

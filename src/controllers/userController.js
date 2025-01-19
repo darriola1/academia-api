@@ -5,34 +5,69 @@ import logger from '../logger.js';
 export class UserController {
 
 
-    // Método estático para crear un nuevo usuario.
     static async createUser(req, res) {
-        const { nombre, apellido, email, password, idRol } = req.body;
-
-        // console.log(nombre, apellido, email, password, idRol)
+        const { nombre, apellido, email, password, idRol, fechaNacimiento, nivelIngles, telefono } = req.body;
+        // console.log('idRol: ', idRol)
 
         try {
-            // Hasheamos la contraseña antes de guardar el usuario
             const passwordHash = await bcrypt.hash(password, 10);
 
-            // Insertamos el nuevo usuario en la base de datos
+            // Crear el usuario en la tabla de usuarios
             const insertResult = await UserModel.createUser(nombre, apellido, email, passwordHash, idRol);
             const insertId = insertResult.insertId;
 
-            // Obtenemos el usuario creado
+            // Registrar datos adicionales dependiendo del rol
+            if (idRol === 3) { // Suponiendo que 3 es el ID para "Alumno"
+                if (!fechaNacimiento || !nivelIngles) {
+                    logger.info('Faltan datos obligatorios para registrar un alumno');
+                    return res.status(400).json({ error: 'Faltan datos obligatorios para registrar un alumno' });
+                }
+                await UserModel.createAlumno(insertId, fechaNacimiento, nivelIngles);
+            } else if (idRol === 4) { // Suponiendo que 4 es el ID para "Padre"
+                if (!telefono) {
+                    logger.info('Falta el teléfono para registrar un padre');
+                    return res.status(400).json({ error: 'Falta el teléfono para registrar un padre' });
+                }
+                await UserModel.createPadre(insertId, telefono);
+            }
+
+            // Obtener y devolver el usuario creado
             const newUser = await UserModel.getUserById(insertId);
-            logger.info(`Usuario ${insertId}: ${email} creado exitosamente`);
+            logger.info(`Usuario ${insertId}: ${email} creado exitosamente con rol ${idRol}`);
             return res.status(201).json(newUser);
         } catch (error) {
             if (error.code === 'ER_DUP_ENTRY') {
                 logger.error(`Usuario ${email} ya existe`);
                 return res.status(409).json({ error: 'El usuario ya existe' });
             } else {
-                logger.error(`Error ${error.message} al crear usuario: ${email}`);
+                logger.error(`Error al crear usuario: ${error.message}`);
                 return res.status(500).json({ error: 'Error interno del servidor' });
             }
         }
     }
+
+    static async createAlumno(idUsuario, fechaNacimiento, nivelIngles) {
+        const query = `INSERT INTO alumnos (id_usuario, fecha_nacimiento, nivel_ingles) VALUES (?, ?, ?)`;
+        try {
+            const [result] = await pool.query(query, [idUsuario, fechaNacimiento, nivelIngles]);
+            return result;
+        } catch (error) {
+            logger.error(`Error creando alumno: ${error.message}`);
+            throw error;
+        }
+    }
+
+    static async createPadre(idUsuario, telefono) {
+        const query = `INSERT INTO padres (id_usuario, telefono) VALUES (?, ?)`;
+        try {
+            const [result] = await pool.query(query, [idUsuario, telefono]);
+            return result;
+        } catch (error) {
+            logger.error(`Error creando padre: ${error.message}`);
+            throw error;
+        }
+    }
+
 
     // Método estático para obtener todos los usuarios.
     static async getAllUsers(req, res) {

@@ -1,8 +1,13 @@
 node_modules
 # Ignorar el archivo .env
 .env
+.env.test
+# Ignorar el archivo de log
 *.log
+# Ignorar el archivo de docker
 docker-compose.yml
 Dockerfile.dev
 Dockerfile.prod
 docker-compose.dev.yml
+# Ignorar el coverage de los test
+coverage

@@ -68,6 +68,11 @@ export class AuthController {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
         }
 
+        if (![1, 2, 3, 4].includes(idRol)) {
+            // Supongamos que estos son roles válidos
+            return res.status(400).json({ error: 'Rol no válido' });
+        }
+
         if (password.length < 6) {
             logger.info('Error en el registro: La contraseña es demasiado débil');
             return res.status(400).json({ error: 'La contraseña es demasiado débil' });

@@ -19,6 +19,11 @@ app.use(json());
 app.use(cors({
     origin: "http://localhost:3002"
 }));
+app.use(cors({
+    origin: 'https://orange-moss-009b85e10.5.azurestaticapps.net',
+    methods: 'GET,POST,PUT,DELETE',
+    credentials: true // Si estás usando cookies o sesiones
+}));
 // app.use('/auth', authRoutes);
 app.use('/api', authRouter);
 app.use('/api/users', userRouter);

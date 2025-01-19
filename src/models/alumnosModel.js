@@ -74,10 +74,10 @@ export class AlumnosModel {
                     AND fecha >= ? AND fecha <= ?
                     ORDER BY id DESC
                     `;
-        console.log('query: ', query)
+        // console.log('query: ', query)
         try {
             const [result] = await pool.query(query, [id, fechaInicio, fechaFin]);
-            console.log(`Result: ${JSON.stringify(result)}`);
+            // console.log(`Result: ${JSON.stringify(result)}`);
             return result; // Retorna un array de objetos con todas las transacciones entre fechas
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);

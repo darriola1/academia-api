@@ -1,12 +1,13 @@
+//ARRANGE
 import request from 'supertest';
-import dotenv from 'dotenv';
 import app from '../src/app.js';
+import dotenv from 'dotenv';
 dotenv.config();
 
 describe('Auth Module - Login', () => {
     test('Debería autenticar un usuario válido y devolver un token', async () => {
         const res = await request(app)
-            .post('/api/login') // Cambiar según tu endpoint
+            .post('/api/login')
             .send({
                 email: 'darriola.dev@gmail.com',
                 password: 'password123',
@@ -59,7 +60,7 @@ describe('Auth Module - Registro de Usuarios', () => {
                 apellido: 'Pérez',
                 email: `${uniqueEmail}`,
                 password: 'password123',
-                idRol: 2, // Asumiendo que 2 es un rol válido
+                idRol: 2, // 2 es un rol válido profesor
             });
 
         expect(res.statusCode).toBe(201);
@@ -111,5 +112,22 @@ describe('Auth Module - Registro de Usuarios', () => {
 
         expect(res.statusCode).toBe(400);
         expect(res.body).toHaveProperty('error', 'La contraseña es demasiado débil');
+    });
+
+    const uniqueEmail3 = `test${Date.now()}@example.com`;
+
+    test('Debería rechazar el registro con un rol no válido', async () => {
+        const res = await request(app)
+            .post('/api/register')
+            .send({
+                nombre: 'Juan',
+                apellido: 'Pérez',
+                email: `${uniqueEmail3}`,
+                password: 'password123',
+                idRol: 99, // Rol no válido
+            });
+
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toHaveProperty('error', 'Rol no válido');
     });
 });

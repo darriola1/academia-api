@@ -6,7 +6,7 @@
 	"scripts": {
 		"start": "node src/server.js",
 		"dev": "nodemon src/app.js",
-		"test": "jest --runInBand",
+		"test": "jest",
 		"vercel-build": "echo hello"
 	},
 	"engines": {

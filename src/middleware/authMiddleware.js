@@ -6,7 +6,7 @@ const verificarToken = (req, res, next) => {
     const token = req.headers.authorization?.split(' ')[1];
     // console.log(`token: ${token}`);
     if (!token) {
-        return res.status(401).json({ error: 'acceso no autorizado' });
+        return res.status(401).json({ error: 'Acceso no autorizado' });
     }
 
     try {
@@ -18,7 +18,7 @@ const verificarToken = (req, res, next) => {
         next();
     } catch (error) {
         logger.error('Error al verificar el token:', error.message);
-        return res.status(403).json({ error: 'Token inválido o expirado' });
+        return res.status(401).json({ error: 'Token inválido o expirado' });
     }
 };
 
