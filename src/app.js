@@ -24,8 +24,9 @@ app.use((req, res, next) => {
 });
 app.use(cors({
     origin: [
-        'http://localhost:3002',
-        'https://orange-moss-009b85e10.5.azurestaticapps.net'
+        'http://localhost:3002', //env local 
+        'https://orange-moss-009b85e10.5.azurestaticapps.net', //env azure
+        'https://academia-frontend-alpha.vercel.app', // env de Vercel
     ],
     methods: 'GET,POST,PUT,DELETE',
     credentials: true, // Permitir cookies/sesiones
