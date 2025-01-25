@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/userController.js';
 import { verificarToken, verificarRole } from '../middleware/authMiddleware.js';
+import logger from '../logger.js';
 
 // Se crea un enrutador utilizando el módulo Router de Express.
 export const userRouter = Router();
+logger.info('Cargando rutas de usuarios...');
 
 // Ruta para obtener todos los usuarios.
 userRouter.get('/', verificarToken, verificarRole(['admin']), UserController.getAllUsers);
@@ -18,7 +20,8 @@ userRouter.delete('/:id', verificarToken, verificarRole(['admin']), UserControll
 userRouter.put('/:id', verificarToken, verificarRole(['admin']), UserController.updateUser);
 
 // Ruta para obtener todos los tutores
-userRouter.get('/tutores', verificarToken, verificarRole(['admin']), UserController.getTutores);
+// userRouter.get('/tutores', verificarToken, verificarRole(['admin']), UserController.tutores);
+userRouter.get('/tutores', UserController.tutores);
 
 // Crear usuarios por tipo
 userRouter.post('/alumno', verificarToken, verificarRole(['admin']), UserController.createAlumno);

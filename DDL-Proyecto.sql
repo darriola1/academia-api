@@ -24,12 +24,25 @@ CREATE TABLE alumnos (
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 );
 
+ALTER TABLE alumnos
+ADD CONSTRAINT fk_alumnos_usuario
+FOREIGN KEY (id_usuario)
+REFERENCES usuarios (id_usuario)
+ON DELETE CASCADE;
+
 CREATE TABLE padres (
     id_padre INT PRIMARY KEY AUTO_INCREMENT,
     id_usuario INT NOT NULL,
     telefono VARCHAR(15),
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
 );
+
+ALTER TABLE padres
+DROP FOREIGN KEY fk_padres_usuario,
+ADD CONSTRAINT fk_padres_usuario
+FOREIGN KEY (id_usuario)
+REFERENCES usuarios (id_usuario)
+ON DELETE CASCADE;
 
 CREATE TABLE relacion_alumno_padre (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -82,3 +95,5 @@ CREATE TABLE alumnoClase (
     FOREIGN KEY (idClase) REFERENCES clase(id) ON DELETE CASCADE,
     FOREIGN KEY (idAlumno) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
+
+

@@ -17,7 +17,8 @@ function calcularEdad(fechaNacimiento) {
 export class AuthController {
     static async login(req, res) {
         const { email, password } = req.body;
-
+        // logger.info(`Request received: ${req.method} ${req.url}`);
+        // logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
         if (!email || !password) {
             logger.info('Error en el login: Email y contraseña son obligatorios');
             return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
@@ -70,48 +71,5 @@ export class AuthController {
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
-
-    // static async createUser(req, res) {
-    //     const { nombre, apellido, email, password, idRol } = req.body;
-    //     // Validaciones generales
-    //     if (!nombre || !apellido || !email || !password || !idRol) {
-    //         logger.info('Error en el registro: Todos los campos son obligatorios');
-    //         return res.status(400).json({ error: 'Todos los campos son obligatorios' });
-    //     }
-
-    //     if (![1, 2, 3, 4].includes(idRol)) {
-    //         // Supongamos que estos son roles válidos
-    //         return res.status(400).json({ error: 'Rol no válido' });
-    //     }
-
-    //     if (password.length < 6) {
-    //         logger.info('Error en el registro: La contraseña es demasiado débil');
-    //         return res.status(400).json({ error: 'La contraseña es demasiado débil' });
-    //     }
-
-    //     try {
-    //         // Hasheamos la contraseña antes de guardar el usuario
-    //         const passwordHash = await bcrypt.hash(password, 10);
-
-    //         // Insertamos el nuevo usuario en la base de datos
-    //         const insertResult = await UserModel.createUser(nombre, apellido, email, passwordHash, idRol);
-    //         const insertId = insertResult.insertId;
-    //         logger.info(`Usuario registrado con id: ${insertId}`);
-
-    //         // Obtenemos el usuario creado
-    //         const newUser = await UserModel.getUserById(insertId);
-    //         return res.status(201).json(newUser[0]);
-    //     } catch (error) {
-    //         if (error.code === 'ER_DUP_ENTRY') {
-    //             logger.error(`El usuario ya existe`);
-    //             return res.status(409).json({ error: 'El usuario ya existe' });
-    //         } else {
-    //             logger.error(`Error del servidor`);
-    //             return res.status(500).json({ error: 'Error interno del servidor' });
-    //         }
-    //     }
-    // }
-
-
 
 }

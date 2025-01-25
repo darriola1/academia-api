@@ -32,7 +32,7 @@ export class UserModel {
         const query = `SELECT * FROM usuarios where id_usuario = ?`;
         try {
             const [result] = await pool.query(query, [id]);
-            // console.log(`Result: ${JSON.stringify(result)}`);
+            // logger.info(`Result: ${JSON.stringify(result)}`);
             return result;
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
@@ -41,10 +41,32 @@ export class UserModel {
     }
 
     static async getUsersByRole(idRol) {
+        // // console.log('idRol', idRol)
+        // logger.debug(`idRol: ${idRol}`)
         const query = `SELECT id_usuario, nombre, apellido, email FROM usuarios WHERE id_rol = ?`;
+        // // const query = `SELECT * FROM padres`;
+        logger.info(`Executing query: ${query}`)
+        // try {
+        //     const [result] = await pool.query(query, [idRol]);
+        //     logger.info(`Result: ${result}`)
+        //     return result; // Retorna un array de usuarios con el rol solicitado
+        // } catch (error) {
+        //     logger.error(`Error ejecutando consulta para usuarios por rol: ${error.message}`);
+        //     throw error;
+        // }
+
+        logger.debug(`Ejecutando consulta con idRol: ${idRol}`);
+        logger.debug(`Query: ${query}`);
         try {
+            // const [result] = await pool.query(query, [idRol]);
+            // logger.debug(`Resultado de la consulta: ${JSON.stringify(result)}`);
+            // return result;
+
             const [result] = await pool.query(query, [idRol]);
-            return result; // Retorna un array de usuarios con el rol solicitado
+            logger.debug(`Tipo de result: ${typeof result}`);
+            logger.debug(`¿Es array? ${Array.isArray(result)}`);
+            logger.debug(`Contenido del result: ${JSON.stringify(result)}`);
+            return result;
         } catch (error) {
             logger.error(`Error ejecutando consulta para usuarios por rol: ${error.message}`);
             throw error;
@@ -99,6 +121,24 @@ export class UserModel {
             throw error;
         }
     }
+
+    static async getAlumnosByTutor(tutorId) {
+        const query = `
+            SELECT a.id_alumno, u.nombre, u.apellido
+            FROM relacion_alumno_padre r
+            JOIN alumnos a ON r.id_alumno = a.id_alumno
+            JOIN usuarios u ON a.id_usuario = u.id_usuario
+            WHERE r.id_padre = ?;
+        `;
+        try {
+            const [result] = await pool.query(query, [tutorId]);
+            return result; // Retorna la lista de alumnos relacionados con el tutor
+        } catch (error) {
+            logger.error(`Error verificando alumnos por tutor: ${error.message}`);
+            throw error;
+        }
+    }
+
 
     static async createRelacionAlumnoTutor(idAlumno, idTutor) {
         const query = `INSERT INTO relacion_alumno_padre (id_alumno, id_padre) VALUES (?, ?)`;

@@ -4,27 +4,59 @@ import bcrypt from 'bcrypt';
 
 export class UserController {
 
-    static async getTutores(req, res) {
-        try {
-            const tutores = await UserModel.getUsersByRole(4); // ID 4 para "Padre"
-            if (tutores.length === 0) {
-                return res.status(404).json({ error: 'No se encontraron tutores registrados' });
-            }
-            return res.status(200).json(tutores);
-        } catch (error) {
-            logger.error(`Error al obtener tutores: ${error.message}`);
-            return res.status(500).json({ error: 'Error interno del servidor' });
-        }
-    }
+    static async tutores(req, res) {
 
+        console.log('Controlador getTutores alcanzado');
+        logger.debug('Consultando tutores en la base de datos...');
+        // Resto del código
+
+
+        // logger.info(`Request received: ${req.method} ${req.url}`);
+        // logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
+        // // logger.debug('Consultando tutores en la base de datos...');
+        // // try {
+        // //     const tutores = await UserModel.getUsersByRole(4);
+        // //     logger.debug(`Resultado de la consulta: ${JSON.stringify(tutores)}`);
+
+        // //     if (!tutores || tutores.length === 0) {
+        // //         logger.info(`Se encontraron ${tutores.length} tutores`);
+        // //         logger.warn('No se encontraron tutores registrados');
+        // //         return res.status(404).json({ error: 'No se encontraron tutores registrados' });
+        // //     }
+        // //     logger.info(`Se encontraron ${tutores.length} tutores`);
+        // //     // logger.debug(`Token después de procesar /tutores: ${req.headers['authorization']}`);
+        // //     return res.status(200).json(tutores);
+        // // } catch (error) {
+        // //     logger.error(`Error al obtener tutores: ${error.message}`);
+        // //     return res.status(500).json({ error: 'Error interno del servidor' });
+        // // }
+
+        // logger.debug('Consultando tutores directamente desde el controlador...');
+        // const query = `SELECT id_usuario, nombre, apellido, email FROM usuarios WHERE id_rol = ?`;
+        // try {
+        //     const [result] = await pool.query(query, [4]);
+        //     logger.debug(`Resultado directo de la consulta: ${JSON.stringify(result)}`);
+        //     if (!result || result.length === 0) {
+        //         logger.info('No se encontraron tutores registrados');
+        //         return res.status(404).json({ error: 'No se encontraron tutores registrados' });
+        //     }
+        //     logger.info(`Se encontraron ${result.length} tutores`);
+        //     return res.status(200).json(result);
+        // } catch (error) {
+        //     logger.error(`Error al obtener tutores directamente: ${error.message}`);
+        //     return res.status(500).json({ error: 'Error interno del servidor' });
+        // }
+    }
 
     // Método estático para obtener todos los usuarios.
     static async getAllUsers(req, res) {
+        // logger.info(`Request received: ${req.method} ${req.url}`);
+        // logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
         try {
             // Se llama al metodo getAllUsers del modelo de usuarios para obtener todos los usuarios.
             const users = await UserModel.getAllUsers();
             // Se envía la respuesta en formato JSON con todos los usuarios obtenidas.
-            return res.json(users);
+            return res.status(200).json(users);
         } catch (error) {
             // Se devuelve error en caso de que exista
             return res.status(500).json({ error: 'Error interno del servidor' });
@@ -33,11 +65,13 @@ export class UserController {
 
     // Método estático para obtener un usuario por ID.
     static async getUserById(req, res) {
+        // logger.info(`Request received: ${req.method} ${req.url}`);
+        // logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
         const { id } = req.params;
         try {
             const user = await UserModel.getUserById(id);
             if (user) {
-                return res.json(user);
+                return res.status(200).json(user);
             } else {
                 return res.status(404).json({ error: `El usuario con id: ${id} no se pudo encontrar` });
             }
@@ -65,22 +99,31 @@ export class UserController {
         }
     }
 
-    // Método estático para eliminar un usuario.
     static async deleteUser(req, res) {
         const { id } = req.params;
 
         try {
-            const deletedUser = await UserModel.deleteUser(id);
+            // Verificar si es un tutor con alumnos asignados
+            const relacionAlumnos = await UserModel.getAlumnosByTutor(id);
+            if (relacionAlumnos.length > 0) {
+                return res.status(400).json({
+                    error: 'No se puede eliminar el tutor porque tiene alumnos asignados. Elimine las relaciones primero.',
+                });
+            }
 
+            // Proceder con la eliminación
+            const deletedUser = await UserModel.deleteUser(id);
             if (deletedUser.affectedRows > 0) {
                 return res.status(200).json({ message: 'Usuario eliminado correctamente' });
             } else {
                 return res.status(404).json({ error: 'El usuario no existe o ya ha sido eliminado' });
             }
         } catch (error) {
+            logger.error(`Error eliminando usuario: ${error.message}`);
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
+
 
     // Función reutilizable para crear usuarios base
     static async createBaseUser({ nombre, apellido, email, password, idRol }) {
@@ -194,7 +237,7 @@ export class UserController {
 
     // Crear un admin
     static async createAdmin(req, res) {
-        const { nombre, apellido, email, password, idRol } = req.body;
+        const { nombre, apellido, email, password } = req.body;
 
         try {
             const userResult = await UserController.createBaseUser({
