@@ -4,7 +4,7 @@ import logger from '../logger.js';
 const verificarToken = (req, res, next) => {
     //obtenemos el token desde el header del request
     const token = req.headers.authorization?.split(' ')[1];
-    logger.debug(`Token recibido en middleware: ${req.headers['authorization']}`);
+    // logger.debug(`Token recibido en middleware: ${req.headers['authorization']}`);
     // console.log(`token: ${token}`);
     if (!token) {
         logger.error('Token no proporcionado');
@@ -15,7 +15,7 @@ const verificarToken = (req, res, next) => {
         //decodificamos el token y almacenamos los datos en la request
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         req.user = decoded;
-        logger.info(`Token verificado para el usuario: ${JSON.stringify(req.user)}`);
+        // logger.info(`Token verificado para el usuario: ${JSON.stringify(req.user)}`);
         // se continua con la solicitud
         next();
     } catch (error) {

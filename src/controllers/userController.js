@@ -4,15 +4,22 @@ import bcrypt from 'bcrypt';
 
 export class UserController {
 
-    static async tutores(req, res) {
-
+    static async getTutores(req, res) {
+        logger.info(`Request received: ${req.method} ${req.url}`);
         console.log('Controlador getTutores alcanzado');
-        logger.debug('Consultando tutores en la base de datos...');
-        // Resto del código
+        try {
+            const tutores = [
+                { id_usuario: 1, nombre: 'Juan', apellido: 'Pérez', email: 'juan@example.com' },
+                { id_usuario: 2, nombre: 'María', apellido: 'González', email: 'maria@example.com' }
+            ];
+            return res.status(200).json(tutores);
+        } catch (error) {
+            logger.error(`Error en controlador: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
 
 
-        // logger.info(`Request received: ${req.method} ${req.url}`);
-        // logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
+
         // // logger.debug('Consultando tutores en la base de datos...');
         // // try {
         // //     const tutores = await UserModel.getUsersByRole(4);
@@ -50,8 +57,8 @@ export class UserController {
 
     // Método estático para obtener todos los usuarios.
     static async getAllUsers(req, res) {
-        // logger.info(`Request received: ${req.method} ${req.url}`);
-        // logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
+        logger.info(`Request received: ${req.method} ${req.url}`);
+        logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
         try {
             // Se llama al metodo getAllUsers del modelo de usuarios para obtener todos los usuarios.
             const users = await UserModel.getAllUsers();

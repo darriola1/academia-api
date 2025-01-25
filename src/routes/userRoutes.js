@@ -21,7 +21,10 @@ userRouter.put('/:id', verificarToken, verificarRole(['admin']), UserController.
 
 // Ruta para obtener todos los tutores
 // userRouter.get('/tutores', verificarToken, verificarRole(['admin']), UserController.tutores);
-userRouter.get('/tutores', UserController.tutores);
+userRouter.get('/tutores', (req, res, next) => {
+    console.log('Solicitud alcanzó el middleware antes de getTutores');
+    next();
+}, UserController.getTutores);
 
 // Crear usuarios por tipo
 userRouter.post('/alumno', verificarToken, verificarRole(['admin']), UserController.createAlumno);
