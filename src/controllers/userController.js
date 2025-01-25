@@ -1,70 +1,19 @@
 import { UserModel } from '../models/userModel.js';
-import bcrypt from 'bcrypt';
 import logger from '../logger.js';
+import bcrypt from 'bcrypt';
 
 export class UserController {
 
-
-    static async createUser(req, res) {
-        const { nombre, apellido, email, password, idRol, fechaNacimiento, nivelIngles, telefono } = req.body;
-        // console.log('idRol: ', idRol)
-
+    static async getTutores(req, res) {
         try {
-            const passwordHash = await bcrypt.hash(password, 10);
-
-            // Crear el usuario en la tabla de usuarios
-            const insertResult = await UserModel.createUser(nombre, apellido, email, passwordHash, idRol);
-            const insertId = insertResult.insertId;
-
-            // Registrar datos adicionales dependiendo del rol
-            if (idRol === 3) { // Suponiendo que 3 es el ID para "Alumno"
-                if (!fechaNacimiento || !nivelIngles) {
-                    logger.info('Faltan datos obligatorios para registrar un alumno');
-                    return res.status(400).json({ error: 'Faltan datos obligatorios para registrar un alumno' });
-                }
-                await UserModel.createAlumno(insertId, fechaNacimiento, nivelIngles);
-            } else if (idRol === 4) { // Suponiendo que 4 es el ID para "Padre"
-                if (!telefono) {
-                    logger.info('Falta el teléfono para registrar un padre');
-                    return res.status(400).json({ error: 'Falta el teléfono para registrar un padre' });
-                }
-                await UserModel.createPadre(insertId, telefono);
+            const tutores = await UserModel.getUsersByRole(4); // ID 4 para "Padre"
+            if (tutores.length === 0) {
+                return res.status(404).json({ error: 'No se encontraron tutores registrados' });
             }
-
-            // Obtener y devolver el usuario creado
-            const newUser = await UserModel.getUserById(insertId);
-            logger.info(`Usuario ${insertId}: ${email} creado exitosamente con rol ${idRol}`);
-            return res.status(201).json(newUser);
+            return res.status(200).json(tutores);
         } catch (error) {
-            if (error.code === 'ER_DUP_ENTRY') {
-                logger.error(`Usuario ${email} ya existe`);
-                return res.status(409).json({ error: 'El usuario ya existe' });
-            } else {
-                logger.error(`Error al crear usuario: ${error.message}`);
-                return res.status(500).json({ error: 'Error interno del servidor' });
-            }
-        }
-    }
-
-    static async createAlumno(idUsuario, fechaNacimiento, nivelIngles) {
-        const query = `INSERT INTO alumnos (id_usuario, fecha_nacimiento, nivel_ingles) VALUES (?, ?, ?)`;
-        try {
-            const [result] = await pool.query(query, [idUsuario, fechaNacimiento, nivelIngles]);
-            return result;
-        } catch (error) {
-            logger.error(`Error creando alumno: ${error.message}`);
-            throw error;
-        }
-    }
-
-    static async createPadre(idUsuario, telefono) {
-        const query = `INSERT INTO padres (id_usuario, telefono) VALUES (?, ?)`;
-        try {
-            const [result] = await pool.query(query, [idUsuario, telefono]);
-            return result;
-        } catch (error) {
-            logger.error(`Error creando padre: ${error.message}`);
-            throw error;
+            logger.error(`Error al obtener tutores: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
 
@@ -130,6 +79,142 @@ export class UserController {
             }
         } catch (error) {
             return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+
+    // Función reutilizable para crear usuarios base
+    static async createBaseUser({ nombre, apellido, email, password, idRol }) {
+        if (!nombre || !apellido || !email || !password || !idRol) {
+            throw new Error('Todos los campos son obligatorios');
+        }
+
+        if (![1, 2, 3, 4].includes(idRol)) {
+            throw new Error('Rol no válido');
+        }
+
+        if (password.length < 6) {
+            throw new Error('La contraseña es demasiado débil');
+        }
+
+        const passwordHash = await bcrypt.hash(password, 10);
+        return await UserModel.createUser(nombre, apellido, email, passwordHash, idRol);
+    }
+
+    // Crear un alumno
+    static async createAlumno(req, res) {
+        const { nombre, apellido, email, password, fechaNacimiento, nivelIngles } = req.body;
+
+        if (!fechaNacimiento || !nivelIngles) {
+            return res.status(400).json({ error: 'Faltan datos específicos del alumno' });
+        }
+
+        try {
+            const userResult = await UserController.createBaseUser({
+                nombre,
+                apellido,
+                email,
+                password,
+                idRol: 3, // Rol 3 = Alumno
+            });
+
+            await UserModel.createAlumno(userResult.insertId, fechaNacimiento, nivelIngles);
+            return res.status(201).json({ message: 'Alumno creado correctamente', idUsuario: userResult.insertId });
+        } catch (error) {
+            logger.error(`Error creando alumno: ${error.message}`);
+            if (error.message === 'Todos los campos son obligatorios' || error.message === 'Rol no válido' || error.message === 'La contraseña es demasiado débil') {
+                return res.status(400).json({ error: error.message });
+            }
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ error: 'El usuario ya existe' });
+            }
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    // Crear un tutor
+    static async createTutor(req, res) {
+        const { nombre, apellido, email, password, telefono } = req.body;
+
+        if (!telefono) {
+            return res.status(400).json({ error: 'Falta el teléfono del tutor' });
+        }
+        try {
+            const userResult = await UserController.createBaseUser({
+                nombre,
+                apellido,
+                email,
+                password,
+                idRol: 4, // Rol 4 = Tutor
+            });
+
+            await UserModel.createPadre(userResult.insertId, telefono);
+            return res.status(201).json({ message: 'Tutor creado correctamente', idUsuario: userResult.insertId });
+        } catch (error) {
+            logger.error(`Error creando tutor: ${error.message}`);
+            if (error.message === 'Todos los campos son obligatorios' || error.message === 'Rol no válido' || error.message === 'La contraseña es demasiado débil') {
+                return res.status(400).json({ error: error.message });
+            }
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ error: 'El usuario ya existe' });
+            }
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    // Crear un profesor
+    static async createProfesor(req, res) {
+        const { nombre, apellido, email, password, nivelIngles } = req.body;
+
+        if (!nivelIngles) {
+            return res.status(400).json({ error: 'Falta el nivel de ingles maximo del profesor' });
+        }
+
+        try {
+            const userResult = await UserController.createBaseUser({
+                nombre,
+                apellido,
+                email,
+                password,
+                idRol: 2, // Rol 2 = Profesor
+            });
+
+            await UserModel.createProfesor(userResult.insertId, nivelIngles);
+            return res.status(201).json({ message: 'Profesor creado correctamente', idUsuario: userResult.insertId });
+        } catch (error) {
+            logger.error(`Error creando tutor: ${error.message}`);
+            if (error.message === 'Todos los campos son obligatorios' || error.message === 'Rol no válido' || error.message === 'La contraseña es demasiado débil') {
+                return res.status(400).json({ error: error.message });
+            }
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ error: 'El usuario ya existe' });
+            }
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    // Crear un admin
+    static async createAdmin(req, res) {
+        const { nombre, apellido, email, password, idRol } = req.body;
+
+        try {
+            const userResult = await UserController.createBaseUser({
+                nombre,
+                apellido,
+                email,
+                password,
+                idRol: 1, // Rol 1 = Admin
+            });
+
+            return res.status(201).json({ message: 'Administrador creado correctamente', idUsuario: userResult.insertId });
+        } catch (error) {
+            logger.error(`Error creando tutor: ${error.message}`);
+            if (error.message === 'Todos los campos son obligatorios' || error.message === 'Rol no válido' || error.message === 'La contraseña es demasiado débil') {
+                return res.status(400).json({ error: error.message });
+            }
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ error: 'El usuario ya existe' });
+            }
+            return res.status(500).json({ error: error.message });
         }
     }
 }

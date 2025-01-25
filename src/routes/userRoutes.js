@@ -16,3 +16,12 @@ userRouter.delete('/:id', verificarToken, verificarRole(['admin']), UserControll
 
 // Ruta para actualizar un usuario por ID.
 userRouter.put('/:id', verificarToken, verificarRole(['admin']), UserController.updateUser);
+
+// Ruta para obtener todos los tutores
+userRouter.get('/tutores', verificarToken, verificarRole(['admin']), UserController.getTutores);
+
+// Crear usuarios por tipo
+userRouter.post('/alumno', verificarToken, verificarRole(['admin']), UserController.createAlumno);
+userRouter.post('/tutor', verificarToken, verificarRole(['admin']), UserController.createTutor);
+userRouter.post('/profesor', verificarToken, verificarRole(['admin']), UserController.createProfesor);
+userRouter.post('/admin', verificarToken, verificarRole(['admin']), UserController.createAdmin);

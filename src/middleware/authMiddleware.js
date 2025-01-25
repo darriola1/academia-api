@@ -33,4 +33,5 @@ const verificarRole = (allowedRoles) => {
     };
 };
 
+
 export { verificarToken, verificarRole };

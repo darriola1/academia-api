@@ -7,4 +7,6 @@ export const authRouter = Router();
 authRouter.post('/login', AuthController.login);
 
 // Ruta para crear un nuevo usuario.
-authRouter.post('/register', AuthController.createUser);
+// authRouter.post('/register', validarDatosUsuario, AuthController.createUser);
+// authRouter.post('/register/alumno', AuthController.createAlumno);
+// authRouter.post('/register/tutor', AuthController.createTutor);
