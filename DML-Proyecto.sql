@@ -68,8 +68,9 @@ VALUES
 INSERT INTO academia_ingles.estado_cuenta (alumno_id, fecha, descripcion, monto, balance_final, tipo_movimiento) 
 VALUES (3, '2024-01-01 00:00:00', 'Clase asistida', 20, 20, 'factura');
 INSERT INTO academia_ingles.estado_cuenta (alumno_id, fecha, descripcion, monto, balance_final, tipo_movimiento) 
-VALUES (3, '2024-01-01 00:00:00', 'Pago realizado', -10, 10, 'pago');
+VALUES (3, '2024-01-01 00:00:00', 'Pago realizado', -10, 10, 'ingreso');
 INSERT INTO academia_ingles.estado_cuenta (alumno_id, fecha, descripcion, monto, balance_final, tipo_movimiento) 
 VALUES (3, '2024-02-01 00:00:00', 'Clase asistida', 20, 30, 'factura');
 INSERT INTO academia_ingles.estado_cuenta (alumno_id, fecha, descripcion, monto, balance_final, tipo_movimiento) 
-VALUES (3, '2024-02-01 00:00:00', 'Pago realizado', -10, 20, 'pago');
+VALUES (3, '2024-02-01 00:00:00', 'Pago realizado', -10, 20, 'ingreso');
+

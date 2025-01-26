@@ -41,10 +41,10 @@ describe('AlumnosController - getAlumnnos', () => {
 
 describe('AlumnosController - getAlumnnosById', () => {
     test('Debería devolver los detalles de un alumno si está autenticado', async () => {
-        const res = await request(app).get('/api/alumnos/3').set('Authorization', token);
+        const res = await request(app).get('/api/alumnos/1').set('Authorization', token);
 
         expect(res.statusCode).toBe(200);
-        expect(res.body).toHaveProperty('id_alumno', 3);
+        expect(res.body).toHaveProperty('id_alumno', 1);
     });
 
     test('Debería devolver 404 si el alumno no existe', async () => {

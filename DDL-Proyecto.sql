@@ -13,44 +13,25 @@ CREATE TABLE usuarios (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     id_rol INT,
+    telefono VARCHAR(15),
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
 );
 
 CREATE TABLE alumnos (
-    id_alumno INT PRIMARY KEY AUTO_INCREMENT,
-    id_usuario INT NOT NULL,
+    id_alumno INT PRIMARY KEY,
     fecha_nacimiento DATE,
     nivel_ingles VARCHAR(50),
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+    FOREIGN KEY (id_alumno) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
-
-ALTER TABLE alumnos
-ADD CONSTRAINT fk_alumnos_usuario
-FOREIGN KEY (id_usuario)
-REFERENCES usuarios (id_usuario)
-ON DELETE CASCADE;
-
-CREATE TABLE padres (
-    id_padre INT PRIMARY KEY AUTO_INCREMENT,
-    id_usuario INT NOT NULL,
-    telefono VARCHAR(15),
-    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
-);
-
-ALTER TABLE padres
-DROP FOREIGN KEY fk_padres_usuario,
-ADD CONSTRAINT fk_padres_usuario
-FOREIGN KEY (id_usuario)
-REFERENCES usuarios (id_usuario)
-ON DELETE CASCADE;
 
 CREATE TABLE relacion_alumno_padre (
     id INT PRIMARY KEY AUTO_INCREMENT,
     id_alumno INT NOT NULL,
     id_padre INT NOT NULL,
-    FOREIGN KEY (id_alumno) REFERENCES alumnos(id_alumno),
-    FOREIGN KEY (id_padre) REFERENCES padres(id_padre)
+    FOREIGN KEY (id_alumno) REFERENCES alumnos(id_alumno) ON DELETE CASCADE,
+    FOREIGN KEY (id_padre) REFERENCES usuarios(id_usuario) ON DELETE CASCADE
 );
+
 
 CREATE TABLE asistencia (
     id INT AUTO_INCREMENT PRIMARY KEY,

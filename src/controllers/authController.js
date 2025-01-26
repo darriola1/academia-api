@@ -3,22 +3,9 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import logger from '../logger.js';
 
-function calcularEdad(fechaNacimiento) {
-    const hoy = new Date();
-    const nacimiento = new Date(fechaNacimiento);
-    let edad = hoy.getFullYear() - nacimiento.getFullYear();
-    const mes = hoy.getMonth() - nacimiento.getMonth();
-    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
-        edad--;
-    }
-    return edad;
-}
-
 export class AuthController {
     static async login(req, res) {
         const { email, password } = req.body;
-        // logger.info(`Request received: ${req.method} ${req.url}`);
-        // logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
         if (!email || !password) {
             logger.info('Error en el login: Email y contraseña son obligatorios');
             return res.status(400).json({ error: 'Email y contraseña son obligatorios' });
@@ -60,7 +47,6 @@ export class AuthController {
                 user: {
                     id: user.id_usuario,
                     user_name: `${user.nombre} ${user.apellido}`,
-                    // rol_id: user.id_rol,
                     rol_nombre: userRol.nombre_rol,
                     email: user.email,
                 },

@@ -5,75 +5,50 @@ dotenv.config();
 
 let token;
 let tutorId;
-
+let tutorDuplicadoAEliminar;
 let tutorConAlumnosId;
 let tutorSinAlumnosId;
 let alumnoParaEliminarId;
-
+let alumnoMenorParaEliminarId;
+let adminId;
 
 beforeAll(async () => {
-    // Obtener un token válido
     const res = await request(app).post('/api/login').send({
         email: 'darriola.dev@gmail.com',
         password: 'password123',
     });
     token = `Bearer ${res.body.token}`;
-
-    // Crear un tutor con alumnos asignados
-    const tutorConAlumnosRes = await request(app)
-        .post('/api/users/tutor')
-        .set('Authorization', token)
-        .send({
-            nombre: 'TutorConAlumnos',
-            apellido: 'Prueba',
-            email: `tutorConAlumnos${Date.now()}@example.com`,
-            password: 'password123',
-            telefono: '099123456',
-        });
-    tutorConAlumnosId = tutorConAlumnosRes.body.idUsuario;
-
-    // Crear un alumno asignado a este tutor
-    const alumnoRes = await request(app)
-        .post('/api/users/alumno')
-        .set('Authorization', token)
-        .send({
-            nombre: 'AlumnoAsignado',
-            apellido: 'Prueba',
-            email: `alumnoAsignado${Date.now()}@example.com`,
-            password: 'password123',
-            fechaNacimiento: '2010-04-01',
-            nivelIngles: 'Intermedio',
-            tutorId: tutorConAlumnosId,
-        });
-
-    // Crear un tutor sin alumnos asignados
-    const tutorSinAlumnosRes = await request(app)
-        .post('/api/users/tutor')
-        .set('Authorization', token)
-        .send({
-            nombre: 'TutorSinAlumnos',
-            apellido: 'Prueba',
-            email: `tutorSinAlumnos${Date.now()}@example.com`,
-            password: 'password123',
-            telefono: '099987654',
-        });
-    tutorSinAlumnosId = tutorSinAlumnosRes.body.idUsuario;
-
-    // Crear un alumno que pueda ser eliminado
-    const alumnoParaEliminarRes = await request(app)
-        .post('/api/users/alumno')
-        .set('Authorization', token)
-        .send({
-            nombre: 'AlumnoParaEliminar',
-            apellido: 'Prueba',
-            email: `alumnoParaEliminar${Date.now()}@example.com`,
-            password: 'password123',
-            fechaNacimiento: '2000-01-01',
-            nivelIngles: 'Básico',
-        });
-    alumnoParaEliminarId = alumnoParaEliminarRes.body.idUsuario;
 });
 
+// // Configuración antes de cada prueba
+// beforeEach(async () => {
+//     await Promise.all([
+//         request(app).delete('/api/users').set('Authorization', token), // Asegurar limpieza general
+//         request(app).delete('/api/alumnos').set('Authorization', token),
+//         request(app).delete('/api/tutores').set('Authorization', token)
+//     ]);
+//     createdUserIds = []; // Reiniciar la lista de IDs creados
+//     // Crear datos iniciales para las pruebas
+//     const tutorRes = await request(app)
+//         .post('/api/users/tutor')
+//         .set('Authorization', token)
+//         .send({
+//             nombre: 'TutorInicial',
+//             apellido: 'Prueba',
+//             email: `tutorInicial${Date.now()}@example.com`,
+//             password: 'password123',
+//             telefono: '099123456',
+//         });
+//     createdUserIds.push(tutorRes.body.idUsuario);
+// });
+
+// Eliminar usuarios después de todas las prueba
+// afterAll(async () => {
+//     for (const userId of createdUserIds) {
+//         await request(app).delete(`/api/users/${userId}`).set('Authorization', token);
+//     }
+//     createdUserIds = [];
+// });
 
 describe('Validación de errores al registrar usuarios', () => {
     test('Debería rechazar el registro de un alumno con datos incompletos', async () => {
@@ -130,7 +105,7 @@ describe('Validación de errores al registrar usuarios', () => {
         const uniqueEmail = `tutorDuplicado${Date.now()}@example.com`;
 
         // Crear el primer usuario
-        await request(app)
+        const resPrimerRegistro = await request(app)
             .post('/api/users/tutor')
             .set('Authorization', token)
             .send({
@@ -140,9 +115,9 @@ describe('Validación de errores al registrar usuarios', () => {
                 password: 'password123',
                 telefono: '099123456',
             });
-
+        tutorDuplicadoAEliminar = resPrimerRegistro.body.idUsuario;
         // Intentar crear un usuario con el mismo email
-        const res = await request(app)
+        const resSegundoRegistro = await request(app)
             .post('/api/users/tutor')
             .set('Authorization', token)
             .send({
@@ -153,8 +128,8 @@ describe('Validación de errores al registrar usuarios', () => {
                 telefono: '099123456',
             });
 
-        expect(res.statusCode).toBe(409);
-        expect(res.body).toHaveProperty('error', 'El usuario ya existe');
+        expect(resSegundoRegistro.statusCode).toBe(409);
+        expect(resSegundoRegistro.body).toHaveProperty('error', 'El usuario ya existe');
     });
 });
 
@@ -193,7 +168,7 @@ describe('Validación de registros exitosos', () => {
                 fechaNacimiento: '2000-05-15',
                 nivelIngles: 'Intermedio',
             });
-
+        alumnoParaEliminarId = res.body.idUsuario;
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty('message', 'Alumno creado correctamente');
     });
@@ -213,7 +188,7 @@ describe('Validación de registros exitosos', () => {
                 nivelIngles: 'Básico',
                 tutorId: tutorId,
             });
-
+        alumnoMenorParaEliminarId = res.body.idUsuario;
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty('message', 'Alumno creado correctamente');
     });
@@ -231,6 +206,7 @@ describe('Validación de registros exitosos', () => {
                 password: 'password123',
             });
 
+        adminId = res.body.idUsuario
         expect(res.statusCode).toBe(201);
         expect(res.body).toHaveProperty('message', 'Administrador creado correctamente');
         expect(res.body).toHaveProperty('idUsuario');
@@ -239,13 +215,6 @@ describe('Validación de registros exitosos', () => {
 });
 
 describe('Metodos para obtener usuarios', () => {
-
-    test('Debería devolver 404 si no hay tutores registrados', async () => {
-        const res = await request(app).get('/api/users/tutores').set('Authorization', token);
-        console.log('res: ', res)
-        expect(res.statusCode).toBe(404);
-        expect(res.body).toHaveProperty('error', 'No se encontraron tutores registrados');
-    });
 
     test('Debería devolver la lista de tutores registrados', async () => {
         const res = await request(app).get('/api/users/tutores').set('Authorization', token);
@@ -259,7 +228,7 @@ describe('Metodos para obtener usuarios', () => {
 describe('Actualizacion de datos de usuarios', () => {
     test('Debería actualizar un usuario existente', async () => {
         const res = await request(app)
-            .put('/api/users/1') // Asume que el usuario con ID 1 existe
+            .put(`/api/users/${tutorId}`) // Asume que el usuario con ID 1 existe
             .set('Authorization', token)
             .send({
                 nombre: 'NuevoNombre',
@@ -291,18 +260,17 @@ describe('Actualizacion de datos de usuarios', () => {
 
 describe('Eliminacion de usuarios', () => {
     test('Debería eliminar un usuario existente', async () => {
-        const idRandom = 150 + (Math.floor(Math.random() * 99) + 1);
-        console.log(`/api/users/${idRandom}`)
 
-        const res = await request(app).delete(`/api/users/${idRandom}`).set('Authorization', token);
+        const res = await request(app).delete(`/api/users/${tutorDuplicadoAEliminar}`).set('Authorization', token);
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('message', 'Usuario eliminado correctamente');
     });
 
     test('Debería rechazar la eliminación de un tutor con alumnos asignados', async () => {
+        // tutorConAlumnosId = tutorId;
         const res = await request(app)
-            .delete(`/api/users/${tutorConAlumnosId}`)
+            .delete(`/api/users/${tutorId}`)
             .set('Authorization', token);
 
         expect(res.statusCode).toBe(400);
@@ -312,18 +280,38 @@ describe('Eliminacion de usuarios', () => {
         );
     });
 
-    test('Debería eliminar un tutor sin alumnos asignados', async () => {
+
+
+    test('Debería eliminar un alumno Mayor', async () => {
         const res = await request(app)
-            .delete(`/api/users/${tutorSinAlumnosId}`)
+            .delete(`/api/users/${alumnoParaEliminarId}`)
             .set('Authorization', token);
 
         expect(res.statusCode).toBe(200);
         expect(res.body).toHaveProperty('message', 'Usuario eliminado correctamente');
     });
 
-    test('Debería eliminar un alumno', async () => {
+    test('Debería eliminar un alumno Menor', async () => {
         const res = await request(app)
-            .delete(`/api/users/${alumnoParaEliminarId}`)
+            .delete(`/api/users/${alumnoMenorParaEliminarId}`)
+            .set('Authorization', token);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('message', 'Usuario eliminado correctamente');
+    });
+
+    test('Debería eliminar un tutor sin alumnos asignados', async () => {
+        const res = await request(app)
+            .delete(`/api/users/${tutorId}`)
+            .set('Authorization', token);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toHaveProperty('message', 'Usuario eliminado correctamente');
+    });
+
+    test('Debería eliminar un admin', async () => {
+        const res = await request(app)
+            .delete(`/api/users/${adminId}`)
             .set('Authorization', token);
 
         expect(res.statusCode).toBe(200);

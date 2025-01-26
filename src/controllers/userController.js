@@ -2,63 +2,87 @@ import { UserModel } from '../models/userModel.js';
 import logger from '../logger.js';
 import bcrypt from 'bcrypt';
 
+function calcularEdad(fechaNacimiento) {
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad--;
+    }
+    return edad;
+}
+
 export class UserController {
 
-    static async getTutores(req, res) {
-        logger.info(`Request received: ${req.method} ${req.url}`);
-        console.log('Controlador getTutores alcanzado');
+    static async createUser(req, res) {
+        const { idRol, nombre, apellido, email, password, telefono } = req.body;
+
+        if (!nombre || !apellido || !email || !password || !idRol || !telefono) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        const validRoles = [1, 2, 4]; // 1: admin, 2: profesor, 4: padre
+        if (!validRoles.includes(idRol)) {
+            return res.status(400).json({ error: 'Rol no válido' });
+        }
+
         try {
-            const tutores = [
-                { id_usuario: 1, nombre: 'Juan', apellido: 'Pérez', email: 'juan@example.com' },
-                { id_usuario: 2, nombre: 'María', apellido: 'González', email: 'maria@example.com' }
-            ];
+            const passwordHash = await bcrypt.hash(password, 10);
+
+            const userResult = await UserModel.createUser({
+                nombre,
+                apellido,
+                email,
+                passwordHash,
+                idRol,
+                telefono
+            });
+
+            return res.status(201).json({
+                message: `Usuario creado correctamente`,
+                idUsuario: userResult.insertId
+            });
+        } catch (error) {
+            logger.error(`Error creando usuario ${idRol}: ${error.message}`);
+            return res.status(500).json({ error: error.message });
+        }
+    }
+
+    static async getTutores(req, res) {
+        // logger.info(`Request received: ${req.method} ${req.url}`);
+        // console.log('Controlador getTutores alcanzado');
+        // logger.debug('Consultando tutores en la base de datos...');
+        try {
+            const result = await UserModel.getTutores();
+            // logger.debug(`Tipo de result: ${typeof result}`);
+            // logger.debug(`¿Es array? ${Array.isArray(result)}`);
+            // logger.debug(`Contenido del result: ${JSON.stringify(result)}`);
+            // const tutores = JSON.stringify(result)
+            const tutores = result
+
+            logger.debug(`Tipo de result: ${typeof result}`);
+            logger.debug(`Tamaño de result: ${result.length}`);
+            // logger.debug(`Resultado de la consulta: ${JSON.stringify(tutores)}`);
+
+            if (!tutores || tutores.length === 0) {
+                // logger.info(`Se encontraron ${tutores.length} tutores`);
+                logger.warn('No se encontraron tutores registrados');
+                return res.status(404).json({ error: 'No se encontraron tutores registrados' });
+            }
+            // logger.info(`Se encontraron ${tutores.length} tutores`);
+            // logger.debug(`Token después de procesar /tutores: ${req.headers['authorization']}`);
             return res.status(200).json(tutores);
         } catch (error) {
-            logger.error(`Error en controlador: ${error.message}`);
+            logger.error(`Error al obtener tutores: ${error.message}`);
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
 
-
-
-        // // logger.debug('Consultando tutores en la base de datos...');
-        // // try {
-        // //     const tutores = await UserModel.getUsersByRole(4);
-        // //     logger.debug(`Resultado de la consulta: ${JSON.stringify(tutores)}`);
-
-        // //     if (!tutores || tutores.length === 0) {
-        // //         logger.info(`Se encontraron ${tutores.length} tutores`);
-        // //         logger.warn('No se encontraron tutores registrados');
-        // //         return res.status(404).json({ error: 'No se encontraron tutores registrados' });
-        // //     }
-        // //     logger.info(`Se encontraron ${tutores.length} tutores`);
-        // //     // logger.debug(`Token después de procesar /tutores: ${req.headers['authorization']}`);
-        // //     return res.status(200).json(tutores);
-        // // } catch (error) {
-        // //     logger.error(`Error al obtener tutores: ${error.message}`);
-        // //     return res.status(500).json({ error: 'Error interno del servidor' });
-        // // }
-
-        // logger.debug('Consultando tutores directamente desde el controlador...');
-        // const query = `SELECT id_usuario, nombre, apellido, email FROM usuarios WHERE id_rol = ?`;
-        // try {
-        //     const [result] = await pool.query(query, [4]);
-        //     logger.debug(`Resultado directo de la consulta: ${JSON.stringify(result)}`);
-        //     if (!result || result.length === 0) {
-        //         logger.info('No se encontraron tutores registrados');
-        //         return res.status(404).json({ error: 'No se encontraron tutores registrados' });
-        //     }
-        //     logger.info(`Se encontraron ${result.length} tutores`);
-        //     return res.status(200).json(result);
-        // } catch (error) {
-        //     logger.error(`Error al obtener tutores directamente: ${error.message}`);
-        //     return res.status(500).json({ error: 'Error interno del servidor' });
-        // }
     }
 
     // Método estático para obtener todos los usuarios.
     static async getAllUsers(req, res) {
-        logger.info(`Request received: ${req.method} ${req.url}`);
-        logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
+
         try {
             // Se llama al metodo getAllUsers del modelo de usuarios para obtener todos los usuarios.
             const users = await UserModel.getAllUsers();
@@ -72,8 +96,7 @@ export class UserController {
 
     // Método estático para obtener un usuario por ID.
     static async getUserById(req, res) {
-        // logger.info(`Request received: ${req.method} ${req.url}`);
-        // logger.debug(`Token inicial en ${req.method} ${req.url}: ${req.headers['authorization']}`);
+
         const { id } = req.params;
         try {
             const user = await UserModel.getUserById(id);
@@ -110,161 +133,77 @@ export class UserController {
         const { id } = req.params;
 
         try {
-            // Verificar si es un tutor con alumnos asignados
-            const relacionAlumnos = await UserModel.getAlumnosByTutor(id);
-            if (relacionAlumnos.length > 0) {
-                return res.status(400).json({
-                    error: 'No se puede eliminar el tutor porque tiene alumnos asignados. Elimine las relaciones primero.',
-                });
-            }
+            // Obtener el usuario por ID
+            const [user] = await UserModel.getUserById(id);
 
-            // Proceder con la eliminación
-            const deletedUser = await UserModel.deleteUser(id);
-            if (deletedUser.affectedRows > 0) {
-                return res.status(200).json({ message: 'Usuario eliminado correctamente' });
-            } else {
+            if (!user) {
                 return res.status(404).json({ error: 'El usuario no existe o ya ha sido eliminado' });
             }
+
+            const { id_rol } = user;
+
+            // Delegar la eliminación a métodos específicos según el rol
+            if (id_rol === 1) return await UserController.deleteAdmin(id, res);
+            if (id_rol === 2) return await UserController.deleteProfesor(id, res);
+            if (id_rol === 3) return await UserController.deleteAlumno(id, res);
+            if (id_rol === 4) return await UserController.deleteTutor(id, res);
+
+            return res.status(400).json({ error: 'Rol no válido para eliminación' });
+
         } catch (error) {
             logger.error(`Error eliminando usuario: ${error.message}`);
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
 
-
-    // Función reutilizable para crear usuarios base
-    static async createBaseUser({ nombre, apellido, email, password, idRol }) {
-        if (!nombre || !apellido || !email || !password || !idRol) {
-            throw new Error('Todos los campos son obligatorios');
-        }
-
-        if (![1, 2, 3, 4].includes(idRol)) {
-            throw new Error('Rol no válido');
-        }
-
-        if (password.length < 6) {
-            throw new Error('La contraseña es demasiado débil');
-        }
-
-        const passwordHash = await bcrypt.hash(password, 10);
-        return await UserModel.createUser(nombre, apellido, email, passwordHash, idRol);
-    }
-
-    // Crear un alumno
-    static async createAlumno(req, res) {
-        const { nombre, apellido, email, password, fechaNacimiento, nivelIngles } = req.body;
-
-        if (!fechaNacimiento || !nivelIngles) {
-            return res.status(400).json({ error: 'Faltan datos específicos del alumno' });
-        }
-
+    static async deleteAdmin(id, res) {
         try {
-            const userResult = await UserController.createBaseUser({
-                nombre,
-                apellido,
-                email,
-                password,
-                idRol: 3, // Rol 3 = Alumno
-            });
-
-            await UserModel.createAlumno(userResult.insertId, fechaNacimiento, nivelIngles);
-            return res.status(201).json({ message: 'Alumno creado correctamente', idUsuario: userResult.insertId });
+            await UserModel.deleteUser(id);
+            return res.status(200).json({ message: 'Usuario eliminado correctamente' });
         } catch (error) {
-            logger.error(`Error creando alumno: ${error.message}`);
-            if (error.message === 'Todos los campos son obligatorios' || error.message === 'Rol no válido' || error.message === 'La contraseña es demasiado débil') {
-                return res.status(400).json({ error: error.message });
-            }
-            if (error.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({ error: 'El usuario ya existe' });
-            }
-            return res.status(500).json({ error: error.message });
+            logger.error(`Error eliminando administrador: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
 
-    // Crear un tutor
-    static async createTutor(req, res) {
-        const { nombre, apellido, email, password, telefono } = req.body;
-
-        if (!telefono) {
-            return res.status(400).json({ error: 'Falta el teléfono del tutor' });
-        }
+    static async deleteProfesor(id, res) {
         try {
-            const userResult = await UserController.createBaseUser({
-                nombre,
-                apellido,
-                email,
-                password,
-                idRol: 4, // Rol 4 = Tutor
-            });
-
-            await UserModel.createPadre(userResult.insertId, telefono);
-            return res.status(201).json({ message: 'Tutor creado correctamente', idUsuario: userResult.insertId });
+            await UserModel.deleteUser(id);
+            return res.status(200).json({ message: 'Usuario eliminado correctamente' });
         } catch (error) {
-            logger.error(`Error creando tutor: ${error.message}`);
-            if (error.message === 'Todos los campos son obligatorios' || error.message === 'Rol no válido' || error.message === 'La contraseña es demasiado débil') {
-                return res.status(400).json({ error: error.message });
-            }
-            if (error.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({ error: 'El usuario ya existe' });
-            }
-            return res.status(500).json({ error: error.message });
+            logger.error(`Error eliminando profesor: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
 
-    // Crear un profesor
-    static async createProfesor(req, res) {
-        const { nombre, apellido, email, password, nivelIngles } = req.body;
-
-        if (!nivelIngles) {
-            return res.status(400).json({ error: 'Falta el nivel de ingles maximo del profesor' });
-        }
-
+    static async deleteAlumno(id, res) {
         try {
-            const userResult = await UserController.createBaseUser({
-                nombre,
-                apellido,
-                email,
-                password,
-                idRol: 2, // Rol 2 = Profesor
-            });
-
-            await UserModel.createProfesor(userResult.insertId, nivelIngles);
-            return res.status(201).json({ message: 'Profesor creado correctamente', idUsuario: userResult.insertId });
+            await UserModel.deleteUser(id);
+            return res.status(200).json({ message: 'Usuario eliminado correctamente' });
         } catch (error) {
-            logger.error(`Error creando tutor: ${error.message}`);
-            if (error.message === 'Todos los campos son obligatorios' || error.message === 'Rol no válido' || error.message === 'La contraseña es demasiado débil') {
-                return res.status(400).json({ error: error.message });
-            }
-            if (error.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({ error: 'El usuario ya existe' });
-            }
-            return res.status(500).json({ error: error.message });
+            logger.error(`Error eliminando alumno: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
 
-    // Crear un admin
-    static async createAdmin(req, res) {
-        const { nombre, apellido, email, password } = req.body;
-
+    static async deleteTutor(id, res) {
         try {
-            const userResult = await UserController.createBaseUser({
-                nombre,
-                apellido,
-                email,
-                password,
-                idRol: 1, // Rol 1 = Admin
-            });
+            const alumnosRelacionados = await UserModel.getAlumnosByTutor(id);
+            if (alumnosRelacionados.length > 0) {
+                return res.status(400).json({
+                    error: 'No se puede eliminar el tutor porque tiene alumnos asignados. Elimine las relaciones primero.',
+                });
+            }
 
-            return res.status(201).json({ message: 'Administrador creado correctamente', idUsuario: userResult.insertId });
+            await UserModel.deleteUser(id);
+            return res.status(200).json({ message: 'Usuario eliminado correctamente' });
         } catch (error) {
-            logger.error(`Error creando tutor: ${error.message}`);
-            if (error.message === 'Todos los campos son obligatorios' || error.message === 'Rol no válido' || error.message === 'La contraseña es demasiado débil') {
-                return res.status(400).json({ error: error.message });
-            }
-            if (error.code === 'ER_DUP_ENTRY') {
-                return res.status(409).json({ error: 'El usuario ya existe' });
-            }
-            return res.status(500).json({ error: error.message });
+            logger.error(`Error eliminando tutor: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
+
+
+
+
 }

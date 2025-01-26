@@ -17,12 +17,12 @@ app.disable('x-powered-by');
 // Se utiliza el middleware 'json' para el parsing de las solicitudes en formato JSON.
 app.use(json());
 // Descomentar para debugg
-app.use((req, res, next) => {
-    console.log(`Request: ${req.method} ${req.url}`);
-    console.log('Headers:', req.headers);
-    console.log('Body:', req.body);
-    next();
-});
+// app.use((req, res, next) => {
+//     console.log(`Request: ${req.method} ${req.url}`);
+//     console.log('Headers:', req.headers);
+//     console.log('Body:', req.body);
+//     next();
+// });
 app.use(cors({
     origin: [
         'http://localhost:3002', //env local 
@@ -39,6 +39,7 @@ app.use('/api/users', userRouter);
 app.use('/api/asistencia', asistenciaRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/alumnos', alumnosRouter);
+app.use('/api/clases', classRouter);
 app.get('/health', (req, res) => {
     res.status(200).send('API is healthy');
 });
@@ -48,10 +49,6 @@ app.use((req, res) => {
     res.status(404).send('End Point no valido');
 });
 
-// Se inicia el servidor Express y se escucha en el puerto especificado.
-// app.listen(PORT);
-
-// // Exportar la aplicación para deploy en Vercel
+// Exportar la aplicación para deploy en Vercel
 export default app;
-// // console.log(`Server on port: ${port}`);
 logger.info(`Server on port: ${PORT}`);

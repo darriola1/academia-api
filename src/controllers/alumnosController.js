@@ -1,4 +1,7 @@
 import { AlumnosModel } from '../models/alumnosModel.js';
+import { UserModel } from '../models/userModel.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { PaymentsModel } from '../models/paymentsModel.js';
 import logger from '../logger.js';
 
@@ -14,6 +17,72 @@ const calcularEdad = (fechaNacimiento) => {
 };
 
 export class AlumnosController {
+    static async createAlumno(req, res) {
+        const { nombre, apellido, email, password, telefono, fechaNacimiento, nivelIngles, tutorId } = req.body;
+
+        if (!nombre || !apellido || !email || !password || !telefono || !fechaNacimiento || !nivelIngles) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios para crear un alumno' });
+        }
+
+        const esMenor = calcularEdad(fechaNacimiento) < 18;
+
+        if (esMenor && !tutorId) {
+            res.status(400).json({ error: 'El alumno debe tener un tutor asignado' });
+        }
+
+        let alumnoId = null;
+
+        try {
+            const passwordHash = await bcrypt.hash(password, 10);
+
+            // Crear el usuario base con el rol de alumno (idRol = 3)
+            const userResult = await UserModel.createUser({
+                nombre,
+                apellido,
+                email,
+                passwordHash,
+                rol: 3, // Rol de alumno
+                telefono
+            });
+
+            if (!userResult || !userResult.insertId) {
+                throw new Error('No se pudo crear el usuario base');
+            }
+
+            alumnoId = userResult.insertId;
+
+            // Crear el registro específico del alumno
+            const alumnoResult = await AlumnosModel.createAlumno(alumnoId, fechaNacimiento, nivelIngles);
+
+            if (!alumnoResult || alumnoResult.affectedRows === 0) {
+                throw new Error('No se pudo crear el registro del alumno');
+            }
+
+            // Si es menor de edad y tiene tutor asignado
+            if (tutorId && esMenor) {
+                await AlumnosModel.createRelacionAlumnoTutor(alumnoId, tutorId);
+            }
+
+            return res.status(201).json({
+                message: 'Alumno creado correctamente',
+                idUsuario: alumnoId
+            });
+        } catch (error) {
+            logger.error(`Error creando alumno: ${error.message}`);
+
+            // Si hubo un error y se creó el usuario base, eliminarlo
+            if (alumnoId) {
+                try {
+                    await UserModel.deleteUser(alumnoId);
+                    logger.info(`Usuario base con ID ${alumnoId} eliminado debido a un error en el proceso de creación del alumno.`);
+                } catch (deleteError) {
+                    logger.error(`Error eliminando usuario base con ID ${alumnoId}: ${deleteError.message}`);
+                }
+            }
+
+            return res.status(500).json({ error: error.message });
+        }
+    }
 
     // tiene acceso a todos los alumnos
     static async getAlumnnos(req, res) {
@@ -21,6 +90,7 @@ export class AlumnosController {
             const alumnos = await AlumnosModel.getAllAlumnos();
             // Transformar los datos
             const alumnosJSON = alumnos.map((alumno) => ({
+                id_usuario: alumno.id_usuario,
                 id_alumno: alumno.id_alumno,
                 edad: calcularEdad(alumno.fecha_nacimiento), // Calcular edad
                 nombre: alumno.nombre,
@@ -83,7 +153,6 @@ export class AlumnosController {
 
         try {
             const transacciones = await AlumnosModel.getTransaccionesByID(alumno_id, limit);
-            // console.log('transacciones: ', transacciones);
             return res.status(200).json(transacciones);
         } catch (error) {
             logger.error(`Error consultando transacciones del alumno ${alumno_id} por usuario ${usuario_id}:${user_name} : ${error.message}`);
