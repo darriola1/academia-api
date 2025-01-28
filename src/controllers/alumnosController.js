@@ -83,7 +83,6 @@ export class AlumnosController {
             return res.status(500).json({ error: error.message });
         }
     }
-
     // tiene acceso a todos los alumnos
     static async getAlumnnos(req, res) {
         try {
@@ -91,11 +90,11 @@ export class AlumnosController {
             // Transformar los datos
             const alumnosJSON = alumnos.map((alumno) => ({
                 id_usuario: alumno.id_usuario,
-                id_alumno: alumno.id_alumno,
                 edad: calcularEdad(alumno.fecha_nacimiento), // Calcular edad
                 nombre: alumno.nombre,
                 apellido: alumno.apellido,
                 email: alumno.email,
+                nivel: alumno.nivelIngles,
                 balance_final: alumno.balance_final
             }));
             return res.json(alumnosJSON);
@@ -103,6 +102,26 @@ export class AlumnosController {
             // Se devuelve error en caso de que exista
             logger.error(`Error executing query: ${error.message}`);
             return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+
+    static async getTutorByAlumno(req, res) {
+        const { id: alumno_id } = req.params;
+        const { id: usuario_id } = req.user;
+        // const { user_name } = req.user;
+
+        try {
+            const tutor = await AlumnosModel.getTutorByAlumno(alumno_id);
+
+            if (!tutor || tutor.length === 0) {
+                logger.warn(`No se encontró tutor para el alumno con ID ${alumno_id}`);
+                return res.status(404).json({ error: 'Tutor no encontrado' });
+            }
+
+            return res.status(200).json(tutor[0]);
+        } catch (error) {
+            logger.error(`Error consultando tutor de ${alumno_id} por usuario ${usuario_id}: ${error.message}`);
+            res.status(500).json({ error: 'Error al obtener tutor del alumno' });
         }
     }
 
@@ -131,6 +150,7 @@ export class AlumnosController {
                 nombre: alumno.nombre,
                 apellido: alumno.apellido,
                 email: alumno.email,
+                tutorId: alumno.tutor,
                 balance_final: balance
             };
 

@@ -7,6 +7,7 @@ import { authRouter } from './routes/authRoutes.js';
 import { asistenciaRouter } from './routes/asistenciaRoutes.js';
 import { paymentsRouter } from './routes/paymentsRoutes.js';
 import { alumnosRouter } from './routes/alumnosRoutes.js';
+import { classRouter } from './routes/classRoutes.js';
 
 // Se define el puerto en el que se ejecutará la API por defecto 4000 si no esta definido
 const PORT = process.env.PORT || 4000;

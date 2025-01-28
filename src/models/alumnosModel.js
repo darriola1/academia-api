@@ -1,10 +1,7 @@
 import pool from '../config/db.js';
 import logger from '../logger.js';
 
-
-
 export class AlumnosModel {
-
     static async createAlumno(idUsuario, fechaNacimiento, nivelIngles) {
         const query = `
             INSERT INTO alumnos (id_alumno, fecha_nacimiento, nivel_ingles)
@@ -34,25 +31,30 @@ export class AlumnosModel {
     }
 
     static async getAllAlumnos() {
-        const query = `SELECT 
-                            a.id_alumno, 
-                            a.id_usuario, 
-                            a.fecha_nacimiento, 
-                            a.nivel_ingles, 
-                            u.nombre, 
-                            u.apellido, 
-                            u.email, 
-                            estado.balance_final
-                        FROM academia_ingles.alumnos AS a
-                        JOIN academia_ingles.usuarios AS u ON u.id_usuario = a.id_usuario
-                        LEFT JOIN 
-                            (
-                                SELECT alumno_id, MAX(id) AS ultimo_id
-                                FROM academia_ingles.estado_cuenta
-                                GROUP BY alumno_id
-                            ) AS ultimos ON ultimos.alumno_id = a.id_alumno
-                        LEFT JOIN academia_ingles.estado_cuenta AS estado ON estado.alumno_id = ultimos.alumno_id AND estado.id = ultimos.ultimo_id;
-                    `;
+        const query = `        
+        SELECT 
+            u.id_usuario AS id_usuario,
+            u.nombre AS nombre,
+            u.apellido AS apellido,
+            u.email AS email,
+            a.fecha_nacimiento AS fecha_nacimiento,
+            a.nivel_ingles AS nivelIngles,
+            r.id_padre AS tutor,
+            COALESCE(ec.balance_final, 0) AS balance_final
+        FROM usuarios AS u
+        LEFT JOIN relacion_alumno_padre AS r ON r.id_alumno = u.id_usuario
+        INNER JOIN alumnos AS a ON u.id_usuario = a.id_alumno
+        LEFT JOIN (
+            SELECT 
+                alumno_id,
+                balance_final
+            FROM estado_cuenta
+            WHERE (alumno_id, id) IN (
+                SELECT alumno_id, MAX(id)
+                FROM estado_cuenta
+                GROUP BY alumno_id
+            )
+        ) AS ec ON ec.alumno_id = u.id_usuario;`;
         try {
             const [result] = await pool.query(query);
 
@@ -65,9 +67,10 @@ export class AlumnosModel {
 
     static async getStudentById(id) {
         const query = `
-                SELECT a.id_alumno, a.fecha_nacimiento, a.nivel_ingles, u.nombre, u.apellido, u.email, u.id_rol FROM academia_ingles.alumnos as a
-                JOIN academia_ingles.usuarios as u on u.id_usuario = a.id_usuario
-                WHERE id_alumno = ?;
+                SELECT u.id_usuario, a.fecha_nacimiento, a.nivel_ingles, u.nombre, u.apellido, u.email, u.id_rol, r.id_padre AS tutor FROM academia_ingles.alumnos as a
+                JOIN academia_ingles.usuarios as u on u.id_usuario = a.id_alumno
+                LEFT JOIN relacion_alumno_padre AS r ON r.id_alumno = u.id_usuario
+                WHERE a.id_alumno = ?;
         `;
         try {
             const [result] = await pool.query(query, [id]);
@@ -105,6 +108,22 @@ export class AlumnosModel {
             return result; // Retorna un array de objetos con todas las transacciones entre fechas
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
+            throw error;
+        }
+    }
+
+    static async getTutorByAlumno(alumnoId) {
+        const query = `
+            SELECT u.id_usuario, u.nombre, u.apellido, u.email, u.telefono
+            FROM relacion_alumno_padre r
+            JOIN usuarios u ON r.id_padre = u.id_usuario
+            WHERE r.id_alumno = ?;
+        `;
+        try {
+            const [result] = await pool.query(query, [alumnoId]);
+            return result; // Retorna el tutor del alumno
+        } catch (error) {
+            logger.error(`Error verificando tutor por alumno: ${error.message}`);
             throw error;
         }
     }

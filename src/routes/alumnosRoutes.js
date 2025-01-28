@@ -13,3 +13,4 @@ alumnosRouter.post('/', verificarToken, verificarRole(['admin']), AlumnosControl
 alumnosRouter.get('/:id', verificarToken, verificarRole(['admin']), AlumnosController.getAlumnnosById);
 alumnosRouter.get('/:id/transacciones', verificarToken, verificarRole(['admin']), AlumnosController.getTransaccionesByAlumno);
 alumnosRouter.get('/:id/transacciones/mes', verificarToken, verificarRole(['admin']), AlumnosController.getTransaccionesByMonth);
+alumnosRouter.get('/:id/:tutor', verificarToken, verificarRole(['admin']), AlumnosController.getTutorByAlumno);
