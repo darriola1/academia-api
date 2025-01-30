@@ -5,7 +5,6 @@ import logger from '../logger.js';
 export class UserModel {
 
     static async createUser({ nombre, apellido, email, passwordHash, idRol, telefono }) {
-        console.log('id_rol: ', idRol)
         const query = `
             INSERT INTO usuarios (nombre, apellido, email, password_hash, id_rol, telefono)
             VALUES (?, ?, ?, ?, ?, ?)

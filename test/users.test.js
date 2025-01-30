@@ -20,40 +20,11 @@ beforeAll(async () => {
     token = `Bearer ${res.body.token}`;
 });
 
-// // Configuración antes de cada prueba
-// beforeEach(async () => {
-//     await Promise.all([
-//         request(app).delete('/api/users').set('Authorization', token), // Asegurar limpieza general
-//         request(app).delete('/api/alumnos').set('Authorization', token),
-//         request(app).delete('/api/tutores').set('Authorization', token)
-//     ]);
-//     createdUserIds = []; // Reiniciar la lista de IDs creados
-//     // Crear datos iniciales para las pruebas
-//     const tutorRes = await request(app)
-//         .post('/api/users/tutor')
-//         .set('Authorization', token)
-//         .send({
-//             nombre: 'TutorInicial',
-//             apellido: 'Prueba',
-//             email: `tutorInicial${Date.now()}@example.com`,
-//             password: 'password123',
-//             telefono: '099123456',
-//         });
-//     createdUserIds.push(tutorRes.body.idUsuario);
-// });
-
-// Eliminar usuarios después de todas las prueba
-// afterAll(async () => {
-//     for (const userId of createdUserIds) {
-//         await request(app).delete(`/api/users/${userId}`).set('Authorization', token);
-//     }
-//     createdUserIds = [];
-// });
 
 describe('Validación de errores al registrar usuarios', () => {
     test('Debería rechazar el registro de un alumno con datos incompletos', async () => {
         const res = await request(app)
-            .post('/api/users/alumno')
+            .post('/api/users/create')
             .set('Authorization', token)
             .send({
                 nombre: 'Alumno',

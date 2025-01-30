@@ -17,6 +17,7 @@ const calcularEdad = (fechaNacimiento) => {
 };
 
 export class AlumnosController {
+
     static async createAlumno(req, res) {
         const { nombre, apellido, email, password, telefono, fechaNacimiento, nivelIngles, tutorId } = req.body;
 
@@ -27,13 +28,14 @@ export class AlumnosController {
         const esMenor = calcularEdad(fechaNacimiento) < 18;
 
         if (esMenor && !tutorId) {
-            res.status(400).json({ error: 'El alumno debe tener un tutor asignado' });
+            return res.status(400).json({ error: 'El alumno debe tener un tutor asignado' });
         }
 
         let alumnoId = null;
 
         try {
             const passwordHash = await bcrypt.hash(password, 10);
+            const ROL_ALUMNO = 3; // Rol de alumno
 
             // Crear el usuario base con el rol de alumno (idRol = 3)
             const userResult = await UserModel.createUser({
@@ -41,7 +43,7 @@ export class AlumnosController {
                 apellido,
                 email,
                 passwordHash,
-                rol: 3, // Rol de alumno
+                idRol: ROL_ALUMNO,
                 telefono
             });
 
@@ -63,10 +65,8 @@ export class AlumnosController {
                 await AlumnosModel.createRelacionAlumnoTutor(alumnoId, tutorId);
             }
 
-            return res.status(201).json({
-                message: 'Alumno creado correctamente',
-                idUsuario: alumnoId
-            });
+            return res.status(201).json({ message: 'Alumno creado correctamente', idUsuario: alumnoId })
+
         } catch (error) {
             logger.error(`Error creando alumno: ${error.message}`);
 
@@ -97,7 +97,7 @@ export class AlumnosController {
                 nivel: alumno.nivelIngles,
                 balance_final: alumno.balance_final
             }));
-            return res.json(alumnosJSON);
+            return res.status(200).json(alumnosJSON);
         } catch (error) {
             // Se devuelve error en caso de que exista
             logger.error(`Error executing query: ${error.message}`);
@@ -145,7 +145,7 @@ export class AlumnosController {
 
             // Transformar los datos
             const alumnoJSON = {
-                id_alumno: alumno.id_alumno,
+                id_alumno: alumno.id_usuario,
                 edad: calcularEdad(alumno.fecha_nacimiento), // Calcular edad
                 nombre: alumno.nombre,
                 apellido: alumno.apellido,

@@ -67,7 +67,15 @@ export class AlumnosModel {
 
     static async getStudentById(id) {
         const query = `
-                SELECT u.id_usuario, a.fecha_nacimiento, a.nivel_ingles, u.nombre, u.apellido, u.email, u.id_rol, r.id_padre AS tutor FROM academia_ingles.alumnos as a
+                SELECT 
+                    u.id_usuario, 
+                    a.fecha_nacimiento, 
+                    a.nivel_ingles, 
+                    u.nombre, 
+                    u.apellido, 
+                    u.email, 
+                    u.id_rol, 
+                    r.id_padre AS tutor FROM academia_ingles.alumnos as a
                 JOIN academia_ingles.usuarios as u on u.id_usuario = a.id_alumno
                 LEFT JOIN relacion_alumno_padre AS r ON r.id_alumno = u.id_usuario
                 WHERE a.id_alumno = ?;
@@ -89,7 +97,7 @@ export class AlumnosModel {
                     `;
         try {
             const [result] = await pool.query(query, [id, limit]);
-            return result; // Retorna un array de objetos con todas las transacciones segun el limite
+            return result // Retorna un array de objetos con todas las transacciones segun el limite
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
             throw error;
@@ -105,7 +113,7 @@ export class AlumnosModel {
                     `;
         try {
             const [result] = await pool.query(query, [id, fechaInicio, fechaFin]);
-            return result; // Retorna un array de objetos con todas las transacciones entre fechas
+            return result // Retorna un array de objetos con todas las transacciones entre fechas
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
             throw error;
