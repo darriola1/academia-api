@@ -1,81 +1,94 @@
 import { UserModel } from '../models/userModel.js';
-import bcrypt from 'bcrypt';
+import { AlumnosModel } from '../models/alumnosModel.js';
 import logger from '../logger.js';
+import bcrypt from 'bcrypt';
+
+function calcularEdad(fechaNacimiento) {
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+        edad--;
+    }
+    return edad;
+}
 
 export class UserController {
 
-
     static async createUser(req, res) {
-        const { nombre, apellido, email, password, idRol, fechaNacimiento, nivelIngles, telefono } = req.body;
-        // console.log('idRol: ', idRol)
+        const { idRol, nombre, apellido, email, password, telefono } = req.body;
+
+        if (!nombre || !apellido || !email || !password || !idRol || !telefono) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!strongPasswordRegex.test(password)) {
+            return res.status(400).json({ error: 'La contraseña es demasiado débil' });
+        }
+
+        const validRoles = [1, 2, 4]; // 1: admin, 2: profesor, 4: padre
+        if (!validRoles.includes(idRol)) {
+            return res.status(400).json({ error: 'Rol no válido' });
+        }
 
         try {
             const passwordHash = await bcrypt.hash(password, 10);
 
-            // Crear el usuario en la tabla de usuarios
-            const insertResult = await UserModel.createUser(nombre, apellido, email, passwordHash, idRol);
-            const insertId = insertResult.insertId;
+            const userResult = await UserModel.createUser({
+                nombre,
+                apellido,
+                email,
+                passwordHash,
+                idRol,
+                telefono
+            });
 
-            // Registrar datos adicionales dependiendo del rol
-            if (idRol === 3) { // Suponiendo que 3 es el ID para "Alumno"
-                if (!fechaNacimiento || !nivelIngles) {
-                    logger.info('Faltan datos obligatorios para registrar un alumno');
-                    return res.status(400).json({ error: 'Faltan datos obligatorios para registrar un alumno' });
-                }
-                await UserModel.createAlumno(insertId, fechaNacimiento, nivelIngles);
-            } else if (idRol === 4) { // Suponiendo que 4 es el ID para "Padre"
-                if (!telefono) {
-                    logger.info('Falta el teléfono para registrar un padre');
-                    return res.status(400).json({ error: 'Falta el teléfono para registrar un padre' });
-                }
-                await UserModel.createPadre(insertId, telefono);
-            }
-
-            // Obtener y devolver el usuario creado
-            const newUser = await UserModel.getUserById(insertId);
-            logger.info(`Usuario ${insertId}: ${email} creado exitosamente con rol ${idRol}`);
-            return res.status(201).json(newUser);
+            return res.status(201).json({
+                message: `Usuario creado correctamente`,
+                idUsuario: userResult.insertId
+            });
         } catch (error) {
+            logger.error(`Error creando usuario ${idRol}: ${error.message}`);
+
             if (error.code === 'ER_DUP_ENTRY') {
-                logger.error(`Usuario ${email} ya existe`);
                 return res.status(409).json({ error: 'El usuario ya existe' });
-            } else {
-                logger.error(`Error al crear usuario: ${error.message}`);
-                return res.status(500).json({ error: 'Error interno del servidor' });
             }
+
+            return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
 
-    static async createAlumno(idUsuario, fechaNacimiento, nivelIngles) {
-        const query = `INSERT INTO alumnos (id_usuario, fecha_nacimiento, nivel_ingles) VALUES (?, ?, ?)`;
+    static async getTutores(req, res) {
+
         try {
-            const [result] = await pool.query(query, [idUsuario, fechaNacimiento, nivelIngles]);
-            return result;
-        } catch (error) {
-            logger.error(`Error creando alumno: ${error.message}`);
-            throw error;
-        }
-    }
+            const result = await UserModel.getTutores();
 
-    static async createPadre(idUsuario, telefono) {
-        const query = `INSERT INTO padres (id_usuario, telefono) VALUES (?, ?)`;
-        try {
-            const [result] = await pool.query(query, [idUsuario, telefono]);
-            return result;
-        } catch (error) {
-            logger.error(`Error creando padre: ${error.message}`);
-            throw error;
-        }
-    }
+            const tutores = result
 
+            // logger.info(`Tutores: ${JSON.stringify(tutores)}`);
+            if (!tutores || tutores.length === 0) {
+                logger.warn('No se encontraron tutores registrados');
+                return res.status(404).json({ error: 'No se encontraron tutores registrados' });
+            }
+
+            return res.status(200).json(tutores);
+        } catch (error) {
+            logger.error(`Error al obtener tutores: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+
+    }
 
     // Método estático para obtener todos los usuarios.
     static async getAllUsers(req, res) {
+
         try {
             // Se llama al metodo getAllUsers del modelo de usuarios para obtener todos los usuarios.
             const users = await UserModel.getAllUsers();
             // Se envía la respuesta en formato JSON con todos los usuarios obtenidas.
-            return res.json(users);
+            return res.status(200).json(users);
         } catch (error) {
             // Se devuelve error en caso de que exista
             return res.status(500).json({ error: 'Error interno del servidor' });
@@ -84,11 +97,12 @@ export class UserController {
 
     // Método estático para obtener un usuario por ID.
     static async getUserById(req, res) {
+
         const { id } = req.params;
         try {
             const user = await UserModel.getUserById(id);
             if (user) {
-                return res.json(user);
+                return res.status(200).json(user);
             } else {
                 return res.status(404).json({ error: `El usuario con id: ${id} no se pudo encontrar` });
             }
@@ -116,20 +130,82 @@ export class UserController {
         }
     }
 
-    // Método estático para eliminar un usuario.
     static async deleteUser(req, res) {
         const { id } = req.params;
 
         try {
-            const deletedUser = await UserModel.deleteUser(id);
+            // Obtener el usuario por ID
+            const [user] = await UserModel.getUserById(id);
 
-            if (deletedUser.affectedRows > 0) {
-                return res.status(200).json({ message: 'Usuario eliminado correctamente' });
-            } else {
+            if (!user) {
                 return res.status(404).json({ error: 'El usuario no existe o ya ha sido eliminado' });
             }
+
+            const { id_rol } = user;
+            console.log('id_rol', id_rol)
+
+            // Delegar la eliminación a métodos específicos según el rol
+            if (id_rol === 1) return await UserController.deleteAdmin(id, res);
+            if (id_rol === 2) return await UserController.deleteProfesor(id, res);
+            if (id_rol === 3) return await UserController.deleteAlumno(id, res);
+            if (id_rol === 4) return await UserController.deleteTutor(id, res);
+
+            return res.status(400).json({ error: 'Rol no válido para eliminación' });
+
         } catch (error) {
+            logger.error(`Error eliminando usuario: ${error.message}`);
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
+
+    static async deleteAdmin(id, res) {
+        try {
+            await UserModel.deleteUser(id);
+            return res.status(200).json({ message: 'Usuario eliminado correctamente' });
+        } catch (error) {
+            logger.error(`Error eliminando administrador: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+
+    static async deleteProfesor(id, res) {
+        try {
+            await UserModel.deleteUser(id);
+            return res.status(200).json({ message: 'Usuario eliminado correctamente' });
+        } catch (error) {
+            logger.error(`Error eliminando profesor: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+
+    static async deleteAlumno(id, res) {
+        try {
+            await UserModel.deleteUser(id);
+            return res.status(200).json({ message: 'Usuario eliminado correctamente' });
+        } catch (error) {
+            logger.error(`Error eliminando alumno: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+
+    static async deleteTutor(id, res) {
+        try {
+            const alumnosRelacionados = await AlumnosModel.getAlumnosByTutor(id);
+            console.log(
+                `Alumnos relacionados con el tutor: ${JSON.stringify(alumnosRelacionados)}`
+            )
+            if (alumnosRelacionados.length > 0) {
+                return res.status(400).json({
+                    error: 'No se puede eliminar el tutor porque tiene alumnos asignados. Elimine las relaciones primero.',
+                });
+            }
+
+            await UserModel.deleteUser(id);
+            return res.status(200).json({ message: 'Usuario eliminado correctamente' });
+        } catch (error) {
+            logger.error(`Error eliminando tutor: ${error.message}`);
+            return res.status(500).json({ error: 'Error interno del servidor' });
+        }
+    }
+
 }

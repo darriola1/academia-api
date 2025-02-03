@@ -4,6 +4,10 @@ import { verificarToken, verificarRole } from '../middleware/authMiddleware.js';
 
 export const paymentsRouter = Router();
 
+
+paymentsRouter.post("/create-payment", verificarToken, verificarRole(['admin']), PaymentsController.createPayment);
+paymentsRouter.post("/webhook", PaymentsController.webhook);
+
 // Ruta para consultar el balance de un alumno
 paymentsRouter.get('/:id', verificarToken, verificarRole(['admin']), PaymentsController.getBalanceById);
 // Ruta para registrar un pago de un alumno

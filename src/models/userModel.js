@@ -3,15 +3,17 @@ import logger from '../logger.js';
 
 // Clase para manejar las operaciones relacionadas con los Usuarios
 export class UserModel {
-    static async createUser(nombre, apellido, email, passwordHash, idRol) {
-        const query = `INSERT INTO usuarios (nombre, apellido, email, password_hash, id_rol) VALUES (?, ?, ?, ?, ?)`;
-        // console.log(`Query: ${query}`)
+
+    static async createUser({ nombre, apellido, email, passwordHash, idRol, telefono }) {
+        const query = `
+            INSERT INTO usuarios (nombre, apellido, email, password_hash, id_rol, telefono)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `;
         try {
-            const [result] = await pool.query(query, [nombre, apellido, email, passwordHash, idRol]);
-            // console.log(`Result: ${JSON.stringify(result)}`);
-            return result;
+            const [result] = await pool.query(query, [nombre, apellido, email, passwordHash, idRol, telefono]);
+            return result; // Devuelve el ID del usuario creado
         } catch (error) {
-            logger.error(`Error executing query: ${error.message}`);
+            logger.error(`Error creando usuario con rol ${idRol}: ${error.message}`);
             throw error;
         }
     }
@@ -20,7 +22,7 @@ export class UserModel {
         const query = `SELECT * FROM usuarios`;
         try {
             const [result] = await pool.query(query);
-            // console.log(`Result: ${JSON.stringify(result)}`);
+
             return result; // Retorna un array de objetos con todos los usuarios
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
@@ -32,7 +34,7 @@ export class UserModel {
         const query = `SELECT * FROM usuarios where id_usuario = ?`;
         try {
             const [result] = await pool.query(query, [id]);
-            // console.log(`Result: ${JSON.stringify(result)}`);
+
             return result;
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
@@ -40,12 +42,36 @@ export class UserModel {
         }
     }
 
+    static async getUsersByRole(idRol) {
+
+        const query = `SELECT id_usuario, nombre, apellido, email FROM usuarios WHERE id_rol = ?`;
+
+        try {
+            const [result] = await pool.query(query, [idRol]);
+
+            return result;
+        } catch (error) {
+            logger.error(`Error ejecutando consulta para usuarios por rol: ${error.message}`);
+            throw error;
+        }
+    }
+
+    static async getTutores() {
+        const query = `SELECT * FROM academia_ingles.usuarios where id_rol = 4`
+        try {
+            const [result] = await pool.query(query);
+
+            return result;
+        } catch (error) {
+            logger.error(`Error ejecutando consulta de tutores: ${error.message}`);
+            throw error;
+        }
+    }
+
     static async getUserByEmail(email) {
         const query = `SELECT * FROM usuarios where email = ?`;
-        // console.log(`Query: ${query}`)
         try {
             const [result] = await pool.query(query, [email]);
-            // console.log(`Result: ${JSON.stringify(result)}`);
             return result;
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
@@ -57,7 +83,6 @@ export class UserModel {
         const query = `SELECT nombre_rol FROM roles where id_rol = ?`;
         try {
             const [result] = await pool.query(query, [id_rol]);
-            // console.log(`Result: ${JSON.stringify(result)}`);
             return result;
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
@@ -68,8 +93,7 @@ export class UserModel {
     static async updateUser(id, nombre, apellido, email, id_rol) {
         const query = `UPDATE usuarios SET nombre = ?, apellido = ?, email = ?, id_rol = ? WHERE id_usuario = ?`;
         try {
-            const [result] = await connection.query(query, [nombre, apellido, email, id_rol, id]);
-            // console.log(`Result: ${JSON.stringify(result)}`);
+            const [result] = await pool.query(query, [nombre, apellido, email, id_rol, id]);
             return result;
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);
@@ -80,8 +104,7 @@ export class UserModel {
     static async deleteUser(id) {
         const query = 'DELETE FROM usuarios WHERE id_usuario = ?';
         try {
-            const [result] = await connection.query(query, [id]);
-            // console.log(`Result: ${JSON.stringify(result)}`);
+            const [result] = await pool.query(query, [id]);
             return result;
         } catch (error) {
             logger.error(`Error executing query: ${error.message}`);

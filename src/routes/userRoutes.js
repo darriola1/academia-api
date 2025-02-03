@@ -7,6 +7,12 @@ export const userRouter = Router();
 
 // Ruta para obtener todos los usuarios.
 userRouter.get('/', verificarToken, verificarRole(['admin']), UserController.getAllUsers);
+// Ruta para obtener todos los tutores
+userRouter.get('/tutores', verificarToken, verificarRole(['admin']), UserController.getTutores);
+
+// Crear usuarios por tipo
+userRouter.post('/create', verificarToken, verificarRole(['admin']), UserController.createUser);
+// userRouter.post('/create/alumno', verificarToken, verificarRole(['admin']), UserController.createAlumno);
 
 // Ruta para obtener un usuario por ID.
 userRouter.get('/:id', verificarToken, verificarRole(['admin']), UserController.getUserById);

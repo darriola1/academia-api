@@ -4,16 +4,15 @@ import logger from '../logger.js';
 const verificarToken = (req, res, next) => {
     //obtenemos el token desde el header del request
     const token = req.headers.authorization?.split(' ')[1];
-    // console.log(`token: ${token}`);
     if (!token) {
+        logger.error('Token no proporcionado');
         return res.status(401).json({ error: 'Acceso no autorizado' });
     }
 
     try {
         //decodificamos el token y almacenamos los datos en la request
-        const user = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = user;
-        // console.log(`user: ${JSON.stringify(user)}`);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
         // se continua con la solicitud
         next();
     } catch (error) {
@@ -32,5 +31,6 @@ const verificarRole = (allowedRoles) => {
         next(); // Si tiene el rol permitido, ir al siguiente middleware o controlador
     };
 };
+
 
 export { verificarToken, verificarRole };
