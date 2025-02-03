@@ -6,6 +6,7 @@ import logger from '../logger.js';
 export class AuthController {
     static async login(req, res) {
         const { email, password } = req.body;
+        // console.log('req.body: ', req.body)
         if (!email || !password) {
             logger.info('Error en el login: Email y contraseña son obligatorios');
             return res.status(400).json({ error: 'Email y contraseña son obligatorios' });

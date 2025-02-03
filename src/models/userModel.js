@@ -57,7 +57,7 @@ export class UserModel {
     }
 
     static async getTutores() {
-        const query = `SELECT u.id_usuario, p.id_padre, u.nombre, u.apellido, u.email, p.telefono FROM usuarios u JOIN padres as p on p.id_usuario = u.id_usuario`;
+        const query = `SELECT * FROM academia_ingles.usuarios where id_rol = 4`
         try {
             const [result] = await pool.query(query);
 

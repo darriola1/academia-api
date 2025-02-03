@@ -1,4 +1,5 @@
 import { UserModel } from '../models/userModel.js';
+import { AlumnosModel } from '../models/alumnosModel.js';
 import logger from '../logger.js';
 import bcrypt from 'bcrypt';
 
@@ -20,6 +21,11 @@ export class UserController {
 
         if (!nombre || !apellido || !email || !password || !idRol || !telefono) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        if (!strongPasswordRegex.test(password)) {
+            return res.status(400).json({ error: 'La contraseña es demasiado débil' });
         }
 
         const validRoles = [1, 2, 4]; // 1: admin, 2: profesor, 4: padre
@@ -45,33 +51,28 @@ export class UserController {
             });
         } catch (error) {
             logger.error(`Error creando usuario ${idRol}: ${error.message}`);
-            return res.status(500).json({ error: error.message });
+
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ error: 'El usuario ya existe' });
+            }
+
+            return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
 
     static async getTutores(req, res) {
-        // logger.info(`Request received: ${req.method} ${req.url}`);
-        // console.log('Controlador getTutores alcanzado');
-        // logger.debug('Consultando tutores en la base de datos...');
+
         try {
             const result = await UserModel.getTutores();
-            // logger.debug(`Tipo de result: ${typeof result}`);
-            // logger.debug(`¿Es array? ${Array.isArray(result)}`);
-            // logger.debug(`Contenido del result: ${JSON.stringify(result)}`);
-            // const tutores = JSON.stringify(result)
+
             const tutores = result
 
-            logger.debug(`Tipo de result: ${typeof result}`);
-            logger.debug(`Tamaño de result: ${result.length}`);
-            // logger.debug(`Resultado de la consulta: ${JSON.stringify(tutores)}`);
-
+            // logger.info(`Tutores: ${JSON.stringify(tutores)}`);
             if (!tutores || tutores.length === 0) {
-                // logger.info(`Se encontraron ${tutores.length} tutores`);
                 logger.warn('No se encontraron tutores registrados');
                 return res.status(404).json({ error: 'No se encontraron tutores registrados' });
             }
-            // logger.info(`Se encontraron ${tutores.length} tutores`);
-            // logger.debug(`Token después de procesar /tutores: ${req.headers['authorization']}`);
+
             return res.status(200).json(tutores);
         } catch (error) {
             logger.error(`Error al obtener tutores: ${error.message}`);
@@ -141,6 +142,7 @@ export class UserController {
             }
 
             const { id_rol } = user;
+            console.log('id_rol', id_rol)
 
             // Delegar la eliminación a métodos específicos según el rol
             if (id_rol === 1) return await UserController.deleteAdmin(id, res);
@@ -188,7 +190,10 @@ export class UserController {
 
     static async deleteTutor(id, res) {
         try {
-            const alumnosRelacionados = await UserModel.getAlumnosByTutor(id);
+            const alumnosRelacionados = await AlumnosModel.getAlumnosByTutor(id);
+            console.log(
+                `Alumnos relacionados con el tutor: ${JSON.stringify(alumnosRelacionados)}`
+            )
             if (alumnosRelacionados.length > 0) {
                 return res.status(400).json({
                     error: 'No se puede eliminar el tutor porque tiene alumnos asignados. Elimine las relaciones primero.',
@@ -202,8 +207,5 @@ export class UserController {
             return res.status(500).json({ error: 'Error interno del servidor' });
         }
     }
-
-
-
 
 }

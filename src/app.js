@@ -10,7 +10,7 @@ import { alumnosRouter } from './routes/alumnosRoutes.js';
 import { classRouter } from './routes/classRoutes.js';
 
 // Se define el puerto en el que se ejecutará la API por defecto 4000 si no esta definido
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.API_PORT || 4000;
 
 const app = express();
 // Se deshabilita el header 'x-powered-by' por "seguridad".
@@ -22,6 +22,7 @@ app.use(json());
 //     console.log(`Request: ${req.method} ${req.url}`);
 //     console.log('Headers:', req.headers);
 //     console.log('Body:', req.body);
+//     console.log('User: ', req.user)
 //     next();
 // });
 app.use(cors({
@@ -29,12 +30,13 @@ app.use(cors({
         'http://localhost:3002', //env local 
         'https://orange-moss-009b85e10.5.azurestaticapps.net', //env azure
         'https://academia-frontend-alpha.vercel.app', // env de Vercel
+        'https://api.mercadopago.com' // Permite solicitudes del Webhook de MercadoPago
     ],
     methods: 'GET,POST,PUT,DELETE',
     credentials: true, // Permitir cookies/sesiones
 }));
 
-// app.use('/auth', authRoutes);
+
 app.use('/api', authRouter);
 app.use('/api/users', userRouter);
 app.use('/api/asistencia', asistenciaRouter);

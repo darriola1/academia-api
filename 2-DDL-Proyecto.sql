@@ -15,11 +15,15 @@ CREATE TABLE usuarios (
     apellido VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    id_rol INT,
+    id_rol INT NOT NULL,
     telefono VARCHAR(15),
     activo BOOLEAN NOT NULL DEFAULT TRUE, -- Campo para desactivar usuarios sin eliminarlos
     FOREIGN KEY (id_rol) REFERENCES roles(id_rol)
 );
+
+ALTER TABLE usuarios 
+MODIFY COLUMN id_rol INT NOT NULL;
+
 
 -- Crear tabla de alumnos con nivel_ingles como ENUM
 CREATE TABLE alumnos (
@@ -101,3 +105,34 @@ CREATE TABLE estado_cuenta (
     tipo_movimiento ENUM('factura', 'ingreso') NOT NULL, -- Tipos definidos
     FOREIGN KEY (alumno_id) REFERENCES usuarios(id_usuario)
 );
+
+ALTER TABLE estado_cuenta
+ADD COLUMN metodo_pago ENUM('efectivo', 'mercadopago', 'transferencia') NOT NULL DEFAULT 'efectivo',
+ADD COLUMN estado ENUM('pendiente', 'completado', 'fallido') NOT NULL DEFAULT 'completado',
+ADD COLUMN id_transaccion_mp VARCHAR(50) NULL;
+
+#Ver de modificar despues
+/*
+CREATE TABLE niveles (
+    nivel VARCHAR(50) PRIMARY KEY
+);
+
+ALTER TABLE alumnos
+DROP COLUMN nivel_ingles,
+ADD COLUMN nivel VARCHAR(50) NOT NULL,
+ADD FOREIGN KEY (nivel) REFERENCES niveles(nivel);
+
+INSERT INTO niveles (nivel) VALUES
+    ('children-1'),
+    ('children-2'),
+    ('children-3'),
+    ('juniors-1'),
+    ('juniors-2'),
+    ('juniors-3'),
+    ('juniors-4'),
+    ('Ket'),
+    ('Pet'),
+    ('First'),
+    ('adultos-1');
+
+*/

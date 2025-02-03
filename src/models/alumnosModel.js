@@ -138,11 +138,18 @@ export class AlumnosModel {
 
     static async getAlumnosByTutor(tutorId) {
         const query = `
-            SELECT a.id_alumno, u.nombre, u.apellido
+            SELECT 
+                a.id_alumno, 
+                ua.nombre as Nombre_Alumno, 
+                ua.apellido as Apellido_Alumno, 
+                u.id_usuario AS id_Padre, 
+                u.nombre as Nombre_Padre, 
+                u.apellido as Apellido_Alumno
             FROM relacion_alumno_padre r
             JOIN alumnos a ON r.id_alumno = a.id_alumno
-            JOIN usuarios u ON a.id_usuario = u.id_usuario
-            WHERE r.id_padre = ?;
+            JOIN usuarios u ON r.id_padre = u.id_usuario
+            JOin usuarios ua on a.id_alumno = ua.id_usuario
+            WHERE u.id_usuario = ?;
         `;
         try {
             const [result] = await pool.query(query, [tutorId]);

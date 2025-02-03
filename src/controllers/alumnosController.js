@@ -21,6 +21,7 @@ export class AlumnosController {
     static async createAlumno(req, res) {
         const { nombre, apellido, email, password, telefono, fechaNacimiento, nivelIngles, tutorId } = req.body;
 
+        // console.log('body:', req.body)
         if (!nombre || !apellido || !email || !password || !telefono || !fechaNacimiento || !nivelIngles) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios para crear un alumno' });
         }
@@ -78,6 +79,10 @@ export class AlumnosController {
                 } catch (deleteError) {
                     logger.error(`Error eliminando usuario base con ID ${alumnoId}: ${deleteError.message}`);
                 }
+            }
+
+            if (error.code === 'ER_DUP_ENTRY') {
+                return res.status(409).json({ error: 'El usuario ya existe' });
             }
 
             return res.status(500).json({ error: error.message });
