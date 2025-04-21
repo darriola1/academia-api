@@ -13,6 +13,7 @@ import { classRouter } from './routes/classRoutes.js';
 const PORT = process.env.API_PORT || 4000;
 
 const app = express();
+//Esta es una demostracion
 // Se deshabilita el header 'x-powered-by' por "seguridad".
 app.disable('x-powered-by');
 // Se utiliza el middleware 'json' para el parsing de las solicitudes en formato JSON.
