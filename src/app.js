@@ -8,12 +8,12 @@ import { asistenciaRouter } from './routes/asistenciaRoutes.js';
 import { paymentsRouter } from './routes/paymentsRoutes.js';
 import { alumnosRouter } from './routes/alumnosRoutes.js';
 import { classRouter } from './routes/classRoutes.js';
-
 // Se define el puerto en el que se ejecutará la API por defecto 4000 si no esta definido
 const PORT = process.env.API_PORT || 4000;
 
 const app = express();
-//Esta es una demostracion
+import swaggerUI from 'swagger-ui-express';
+import swaggerDocument from './swagger-output.json' with { type: 'json' };;
 // Se deshabilita el header 'x-powered-by' por "seguridad".
 app.disable('x-powered-by');
 // Se utiliza el middleware 'json' para el parsing de las solicitudes en formato JSON.
@@ -44,6 +44,7 @@ app.use('/api/asistencia', asistenciaRouter);
 app.use('/api/payments', paymentsRouter);
 app.use('/api/alumnos', alumnosRouter);
 app.use('/api/clases', classRouter);
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument))
 app.get('/health', (req, res) => {
     res.status(200).send('API is healthy');
 });
